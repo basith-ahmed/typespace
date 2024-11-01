@@ -200,8 +200,8 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   return (
-    <div className="container mx-auto p-4 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6">Improved Typing Speed Tester</h1>
+    <div className="mx-auto p-4 flex flex-col items-center justify-center h-screen">
+      <h1 className="text-3xl font-bold mb-6">Type Racer</h1>
       {gameState === "typing" && (
         <>
           <div className="mb-4 w-full max-w-2xl">
@@ -249,7 +249,7 @@ export default function ImprovedTypingSpeedTester() {
               ))}
             </div>
           </div>
-          <div className="mb-4 text-center">
+          <div className="mb-4 text-center min-h-8">
             {characterAccuracy.map((isCorrect, index) => (
               <span
                 key={index}
@@ -264,7 +264,7 @@ export default function ImprovedTypingSpeedTester() {
             type="text"
             value={userInput}
             onChange={handleInputChange}
-            className="mb-4 text-lg w-full max-w-2xl"
+            className="mb-4 text-lg w-full max-w-2xl text-center"
             placeholder="Start typing to begin..."
             aria-label="Type the words shown above"
           />
@@ -283,7 +283,7 @@ export default function ImprovedTypingSpeedTester() {
       {gameState === "result" && (
         <>
           <div className="text-center mb-6 w-full max-w-2xl">
-            <h2 className="text-3xl font-bold mb-4">Test Results</h2>
+            <h2 className="text-3xl font-bold mb-4">Results</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-4xl font-bold text-primary">{wpm}</p>
@@ -298,10 +298,10 @@ export default function ImprovedTypingSpeedTester() {
             </div>
           </div>
           <div className="mb-6 w-full max-w-2xl">
-            <h3 className="text-xl font-semibold mb-2">
+            {/* <h3 className="text-xl font-semibold mb-2">
               Performance Over Time
-            </h3>
-            <div className="h-64">
+            </h3> */}
+            {/* <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={performanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -344,7 +344,7 @@ export default function ImprovedTypingSpeedTester() {
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
+            </div> */}
           </div>
           <Button onClick={resetGame} className="w-full max-w-2xl">
             Try Again
