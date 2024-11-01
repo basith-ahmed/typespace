@@ -1,101 +1,408 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import { Moon, Sun } from "lucide-react";
+
+const words = [
+  "the",
+  "be",
+  "of",
+  "and",
+  "a",
+  "to",
+  "in",
+  "he",
+  "have",
+  "it",
+  "that",
+  "for",
+  "they",
+  "with",
+  "as",
+  "not",
+  "on",
+  "she",
+  "at",
+  "by",
+  "this",
+  "we",
+  "you",
+  "do",
+  "but",
+  "from",
+  "or",
+  "which",
+  "one",
+  "would",
+  "all",
+  "will",
+  "there",
+  "say",
+  "who",
+  "make",
+  "when",
+  "can",
+  "more",
+  "if",
+  "no",
+  "man",
+  "out",
+  "other",
+  "so",
+  "what",
+  "time",
+  "up",
+  "go",
+  "about",
+  "than",
+  "into",
+  "could",
+  "state",
+  "only",
+];
+
+export default function ImprovedTypingSpeedTester() {
+  const [gameState, setGameState] = useState("idle"); // idle, playing, finished
+  const [currentWords, setCurrentWords] = useState<string[]>([]);
+  const [userInput, setUserInput] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+  const [correctWords, setCorrectWords] = useState(0);
+  const [startTime, setStartTime] = useState(0);
+  const [wpm, setWpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(100);
+  const [testDuration, setTestDuration] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(testDuration);
+  const [performanceData, setPerformanceData] = useState<
+    { time: number; wpm: number; accuracy: number }[]
+  >([]);
+  const [characterAccuracy, setCharacterAccuracy] = useState<boolean[]>([]);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (gameState === "playing") {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            endGame();
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        // Update performance data every 5 seconds
+        if (timeLeft % 5 === 0) {
+          setPerformanceData((prev) => [
+            ...prev,
+            { time: testDuration - timeLeft, wpm, accuracy },
+          ]);
+        }
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [gameState, timeLeft, testDuration, wpm, accuracy]);
+
+  useEffect(() => {
+    document.body.classList.toggle("dark", isDarkMode);
+  }, [isDarkMode]);
+
+  const generateWords = () => {
+    const newWords = Array(10)
+      .fill(null)
+      .map(() => words[Math.floor(Math.random() * words.length)]);
+    setCurrentWords(newWords);
+  };
+
+  const startGame = () => {
+    generateWords();
+    setGameState("playing");
+    setStartTime(Date.now());
+    setWordIndex(0);
+    setCorrectWords(0);
+    setWpm(0);
+    setAccuracy(100);
+    setTimeLeft(testDuration);
+    setPerformanceData([]);
+    setCharacterAccuracy([]);
+    if (inputRef.current) inputRef.current.focus();
+  };
+
+  const endGame = () => {
+    setGameState("finished");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setUserInput(inputValue);
+
+    // Update character accuracy
+    const currentWord = currentWords[wordIndex];
+    const newCharacterAccuracy = inputValue
+      .split("")
+      .map((char, index) => char === currentWord[index]);
+    setCharacterAccuracy(newCharacterAccuracy);
+
+    if (inputValue.endsWith(" ")) {
+      const typedWord = inputValue.trim();
+      if (typedWord === currentWords[wordIndex]) {
+        setCorrectWords((prev) => prev + 1);
+      }
+      setWordIndex((prev) => prev + 1);
+      setUserInput("");
+      setCharacterAccuracy([]);
+
+      if (wordIndex === currentWords.length - 1) {
+        generateWords();
+        setWordIndex(0);
+      }
+
+      // Calculate WPM and accuracy
+      const timeElapsed = (Date.now() - startTime) / 60000; // in minutes
+      const newWpm = Math.round(correctWords / timeElapsed);
+      const newAccuracy = Math.round((correctWords / (wordIndex + 1)) * 100);
+      setWpm(newWpm);
+      setAccuracy(newAccuracy);
+    }
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className={`container mx-auto p-4 ${isDarkMode ? "dark" : ""}`}>
+      <Card className="mb-4">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Improved Typing Speed Tester</CardTitle>
+            <CardDescription>
+              Test your typing speed and accuracy
+            </CardDescription>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+            {isDarkMode ? (
+              <Sun className="h-[1.2rem] w-[1.2rem]" />
+            ) : (
+              <Moon className="h-[1.2rem] w-[1.2rem]" />
+            )}
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {gameState === "idle" && (
+            <div className="flex items-center space-x-4">
+              <Select
+                value={testDuration.toString()}
+                onValueChange={(value) => setTestDuration(parseInt(value))}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select test duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">30 seconds</SelectItem>
+                  <SelectItem value="60">1 minute</SelectItem>
+                  <SelectItem value="120">2 minutes</SelectItem>
+                  <SelectItem value="300">5 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={startGame}>Start Test</Button>
+            </div>
+          )}
+          {gameState === "playing" && (
+            <>
+              <div className="mb-4">
+                <div className="text-2xl font-bold mb-2">
+                  Time left: {timeLeft}s
+                </div>
+                <Progress
+                  value={(timeLeft / testDuration) * 100}
+                  className="w-full"
+                />
+              </div>
+              <div className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg">
+                <div
+                  className="absolute whitespace-nowrap transition-transform duration-300 flex items-center h-full"
+                  style={{
+                    transform: `translateX(calc(50% - ${wordIndex * 120}px))`,
+                  }}
+                >
+                  {currentWords.map((word, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block w-[120px] text-center text-lg ${
+                        index === wordIndex
+                          ? "text-primary font-bold"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4 text-center">
+                {characterAccuracy.map((isCorrect, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                      isCorrect ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  />
+                ))}
+              </div>
+              <Input
+                ref={inputRef}
+                type="text"
+                value={userInput}
+                onChange={handleInputChange}
+                className="mb-4 text-lg"
+                placeholder="Type here..."
+              />
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-primary">{wpm}</div>
+                  <div className="text-sm text-muted-foreground">WPM</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary">
+                    {accuracy}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Accuracy</div>
+                </div>
+              </div>
+            </>
+          )}
+          {gameState === "finished" && (
+            <>
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold mb-4">Test Results</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-4xl font-bold text-primary">{wpm}</p>
+                    <p className="text-lg text-muted-foreground">
+                      Words per Minute
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-4xl font-bold text-primary">
+                      {accuracy}%
+                    </p>
+                    <p className="text-lg text-muted-foreground">Accuracy</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-2">
+                  Performance Over Time
+                </h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={performanceData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="time"
+                        label={{
+                          value: "Time (seconds)",
+                          position: "insideBottom",
+                          offset: -5,
+                        }}
+                      />
+                      <YAxis
+                        yAxisId="left"
+                        label={{
+                          value: "WPM",
+                          angle: -90,
+                          position: "insideLeft",
+                        }}
+                      />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        label={{
+                          value: "Accuracy (%)",
+                          angle: 90,
+                          position: "insideRight",
+                        }}
+                      />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="wpm"
+                        stroke="hsl(var(--primary))"
+                        name="WPM"
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="accuracy"
+                        stroke="hsl(var(--secondary))"
+                        name="Accuracy"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-2">Word Frequency</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={words
+                        .map((word) => ({
+                          word,
+                          count: Math.floor(Math.random() * 10),
+                        }))
+                        .slice(0, 10)}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="word" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="hsl(var(--primary))" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <Button onClick={() => setGameState("idle")} className="w-full">
+                Try Again
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
