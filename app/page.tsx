@@ -3,20 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
   LineChart,
@@ -27,10 +14,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  BarChart,
-  Bar,
 } from "recharts";
-import { Moon, Sun } from "lucide-react";
 
 const words = [
   "the",
@@ -91,7 +75,7 @@ const words = [
 ];
 
 export default function ImprovedTypingSpeedTester() {
-  const [gameState, setGameState] = useState("idle"); // idle, playing, finished
+  const [gameState, setGameState] = useState<"typing" | "result">("typing");
   const [currentWords, setCurrentWords] = useState<string[]>([]);
   const [userInput, setUserInput] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
@@ -99,18 +83,20 @@ export default function ImprovedTypingSpeedTester() {
   const [startTime, setStartTime] = useState(0);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
-  const [testDuration, setTestDuration] = useState(60);
-  const [timeLeft, setTimeLeft] = useState(testDuration);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [performanceData, setPerformanceData] = useState<
     { time: number; wpm: number; accuracy: number }[]
   >([]);
   const [characterAccuracy, setCharacterAccuracy] = useState<boolean[]>([]);
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (gameState === "playing") {
+    generateWords();
+  }, []);
+
+  useEffect(() => {
+    if (gameState === "typing" && startTime !== 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -125,18 +111,14 @@ export default function ImprovedTypingSpeedTester() {
         if (timeLeft % 5 === 0) {
           setPerformanceData((prev) => [
             ...prev,
-            { time: testDuration - timeLeft, wpm, accuracy },
+            { time: 60 - timeLeft, wpm, accuracy },
           ]);
         }
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [gameState, timeLeft, testDuration, wpm, accuracy]);
-
-  useEffect(() => {
-    document.body.classList.toggle("dark", isDarkMode);
-  }, [isDarkMode]);
+  }, [gameState, timeLeft, startTime, wpm, accuracy]);
 
   const generateWords = () => {
     const newWords = Array(10)
@@ -146,24 +128,17 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   const startGame = () => {
-    generateWords();
-    setGameState("playing");
     setStartTime(Date.now());
-    setWordIndex(0);
-    setCorrectWords(0);
-    setWpm(0);
-    setAccuracy(100);
-    setTimeLeft(testDuration);
-    setPerformanceData([]);
-    setCharacterAccuracy([]);
     if (inputRef.current) inputRef.current.focus();
   };
 
   const endGame = () => {
-    setGameState("finished");
+    setGameState("result");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (startTime === 0) startGame();
+
     const inputValue = e.target.value;
     setUserInput(inputValue);
 
@@ -197,58 +172,34 @@ export default function ImprovedTypingSpeedTester() {
     }
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
+  const resetGame = () => {
+    setGameState("typing");
+    generateWords();
+    setWordIndex(0);
+    setCorrectWords(0);
+    setStartTime(0);
+    setWpm(0);
+    setAccuracy(100);
+    setTimeLeft(60);
+    setPerformanceData([]);
+    setCharacterAccuracy([]);
+    setUserInput("");
   };
 
   return (
-    <div className={`container mx-auto p-4 ${isDarkMode ? "dark" : ""}`}>
+    <div className="container mx-auto p-4">
       <Card className="mb-4">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Improved Typing Speed Tester</CardTitle>
-            <CardDescription>
-              Test your typing speed and accuracy
-            </CardDescription>
-          </div>
-          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-            {isDarkMode ? (
-              <Sun className="h-[1.2rem] w-[1.2rem]" />
-            ) : (
-              <Moon className="h-[1.2rem] w-[1.2rem]" />
-            )}
-          </Button>
+        <CardHeader>
+          <CardTitle>Improved Typing Speed Tester</CardTitle>
         </CardHeader>
         <CardContent>
-          {gameState === "idle" && (
-            <div className="flex items-center space-x-4">
-              <Select
-                value={testDuration.toString()}
-                onValueChange={(value) => setTestDuration(parseInt(value))}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select test duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="30">30 seconds</SelectItem>
-                  <SelectItem value="60">1 minute</SelectItem>
-                  <SelectItem value="120">2 minutes</SelectItem>
-                  <SelectItem value="300">5 minutes</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={startGame}>Start Test</Button>
-            </div>
-          )}
-          {gameState === "playing" && (
+          {gameState === "typing" && (
             <>
               <div className="mb-4">
                 <div className="text-2xl font-bold mb-2">
                   Time left: {timeLeft}s
                 </div>
-                <Progress
-                  value={(timeLeft / testDuration) * 100}
-                  className="w-full"
-                />
+                <Progress value={(timeLeft / 60) * 100} className="w-full" />
               </div>
               <div className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg">
                 <div
@@ -287,7 +238,8 @@ export default function ImprovedTypingSpeedTester() {
                 value={userInput}
                 onChange={handleInputChange}
                 className="mb-4 text-lg"
-                placeholder="Type here..."
+                placeholder="Start typing to begin..."
+                aria-label="Type the words shown above"
               />
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
@@ -303,7 +255,7 @@ export default function ImprovedTypingSpeedTester() {
               </div>
             </>
           )}
-          {gameState === "finished" && (
+          {gameState === "result" && (
             <>
               <div className="text-center mb-6">
                 <h2 className="text-3xl font-bold mb-4">Test Results</h2>
@@ -375,28 +327,7 @@ export default function ImprovedTypingSpeedTester() {
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-2">Word Frequency</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={words
-                        .map((word) => ({
-                          word,
-                          count: Math.floor(Math.random() * 10),
-                        }))
-                        .slice(0, 10)}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="word" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              <Button onClick={() => setGameState("idle")} className="w-full">
+              <Button onClick={resetGame} className="w-full">
                 Try Again
               </Button>
             </>
