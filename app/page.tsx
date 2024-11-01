@@ -89,7 +89,7 @@ export default function ImprovedTypingSpeedTester() {
   const [startTime, setStartTime] = useState(0);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
-  const [testDuration, setTestDuration] = useState(60);
+  const [testDuration, setTestDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState(testDuration);
   const [performanceData, setPerformanceData] = useState<
     { time: number; wpm: number; accuracy: number }[]
