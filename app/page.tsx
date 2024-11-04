@@ -11,16 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 const words = [
   "the",
@@ -97,10 +87,28 @@ export default function ImprovedTypingSpeedTester() {
   const [characterAccuracy, setCharacterAccuracy] = useState<boolean[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
-    generateWords();
+    generateWords(50); // Initialize with a larger number of words for smooth scrolling
+
+    // Measure container width for dynamic centering
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth);
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
+
+  const handleResize = () => {
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth);
+    }
+  };
 
   useEffect(() => {
     if (gameState === "typing" && startTime !== 0) {
@@ -115,7 +123,7 @@ export default function ImprovedTypingSpeedTester() {
         });
 
         // Update performance data every 5 seconds
-        if (timeLeft % 5 === 0) {
+        if (timeLeft > 0 && timeLeft % 5 === 0) {
           setPerformanceData((prev) => [
             ...prev,
             { time: testDuration - timeLeft, wpm, accuracy },
@@ -127,11 +135,11 @@ export default function ImprovedTypingSpeedTester() {
     }
   }, [gameState, timeLeft, startTime, wpm, accuracy, testDuration]);
 
-  const generateWords = () => {
-    const newWords = Array(10)
+  const generateWords = (count = 10) => {
+    const newWords = Array(count)
       .fill(null)
       .map(() => words[Math.floor(Math.random() * words.length)]);
-    setCurrentWords(newWords);
+    setCurrentWords((prevWords) => [...prevWords, ...newWords]);
   };
 
   const startGame = () => {
@@ -166,15 +174,16 @@ export default function ImprovedTypingSpeedTester() {
       setUserInput("");
       setCharacterAccuracy([]);
 
-      if (wordIndex === currentWords.length - 1) {
-        generateWords();
-        setWordIndex(0);
+      // Append new words if nearing the end to maintain the continuous strip
+      if (wordIndex >= currentWords.length - 20) {
+        generateWords(10);
       }
 
       // Calculate WPM and accuracy
       const timeElapsed = (Date.now() - startTime) / 60000; // in minutes
       const newWpm = Math.round(correctWords / timeElapsed);
-      const newAccuracy = Math.round((correctWords / (wordIndex + 1)) * 100);
+      const newAccuracy =
+        wordIndex > 0 ? Math.round((correctWords / wordIndex) * 100) : 100;
       setWpm(newWpm);
       setAccuracy(newAccuracy);
     }
@@ -182,7 +191,8 @@ export default function ImprovedTypingSpeedTester() {
 
   const resetGame = () => {
     setGameState("typing");
-    generateWords();
+    setCurrentWords([]);
+    generateWords(50); // Reinitialize with more words for continuous strip
     setWordIndex(0);
     setCorrectWords(0);
     setStartTime(0);
@@ -195,12 +205,26 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   const handleDurationChange = (value: string) => {
-    setTestDuration(parseInt(value));
-    setTimeLeft(parseInt(value));
+    const duration = parseInt(value);
+    setTestDuration(duration);
+    setTimeLeft(duration);
+    resetGame(); // Reset the game when duration changes
+  };
+
+  // Calculate translation to center the current word
+  const calculateTranslateX = () => {
+    // Each word has a fixed width of 120px
+    const wordWidth = 120;
+    // Center of the container
+    const centerPosition = containerWidth / 2;
+    // Position where the current word should be placed
+    const targetPosition = wordIndex * wordWidth + wordWidth / 2;
+    // Calculate the translateX needed to center the current word
+    return centerPosition - targetPosition;
   };
 
   return (
-    <div className="mx-auto p-4 flex flex-col items-center justify-center h-screen">
+    <div className="mx-auto p-4 flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-3xl font-bold mb-6">Type Racer</h1>
       {gameState === "typing" && (
         <>
@@ -228,11 +252,16 @@ export default function ImprovedTypingSpeedTester() {
               className="w-full"
             />
           </div>
-          <div className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl">
+
+          {/* Continuous Infinite Strip of Words with Centered Current Word */}
+          <div
+            ref={containerRef}
+            className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
+          >
             <div
-              className="absolute whitespace-nowrap transition-transform duration-300 flex items-center h-full"
+              className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-300"
               style={{
-                transform: `translateX(calc(25% - ${wordIndex * 120}px))`,
+                transform: `translateX(${calculateTranslateX()}px)`,
               }}
             >
               {currentWords.map((word, index) => (
@@ -249,6 +278,8 @@ export default function ImprovedTypingSpeedTester() {
               ))}
             </div>
           </div>
+
+          {/* Character Accuracy Indicators */}
           <div className="mb-4 text-center min-h-8">
             {characterAccuracy.map((isCorrect, index) => (
               <span
@@ -259,23 +290,25 @@ export default function ImprovedTypingSpeedTester() {
               />
             ))}
           </div>
+
           <Input
             ref={inputRef}
             type="text"
             value={userInput}
             onChange={handleInputChange}
-            className="mb-4 text-lg w-full max-w-2xl text-center"
+            className="mb-4 text-lg w-full max-w-2xl text-center border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Start typing to begin..."
             aria-label="Type the words shown above"
           />
+
           <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
             <div>
               <div className="text-3xl font-bold text-primary">{wpm}</div>
-              <div className="text-sm text-muted-foreground">WPM</div>
+              <div className="text-sm text-gray-600">WPM</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-primary">{accuracy}%</div>
-              <div className="text-sm text-muted-foreground">Accuracy</div>
+              <div className="text-sm text-gray-600">Accuracy</div>
             </div>
           </div>
         </>
@@ -287,21 +320,20 @@ export default function ImprovedTypingSpeedTester() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-4xl font-bold text-primary">{wpm}</p>
-                <p className="text-lg text-muted-foreground">
-                  Words per Minute
-                </p>
+                <p className="text-lg text-gray-600">Words per Minute</p>
               </div>
               <div>
                 <p className="text-4xl font-bold text-primary">{accuracy}%</p>
-                <p className="text-lg text-muted-foreground">Accuracy</p>
+                <p className="text-lg text-gray-600">Accuracy</p>
               </div>
             </div>
           </div>
-          <div className="mb-6 w-full max-w-2xl">
-            {/* <h3 className="text-xl font-semibold mb-2">
+
+          {/* <div className="mb-6 w-full max-w-2xl">
+            <h3 className="text-xl font-semibold mb-2">
               Performance Over Time
-            </h3> */}
-            {/* <div className="h-64">
+            </h3>
+            <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={performanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -344,8 +376,9 @@ export default function ImprovedTypingSpeedTester() {
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div> */}
-          </div>
+            </div>
+          </div> */}
+
           <Button onClick={resetGame} className="w-full max-w-2xl">
             Try Again
           </Button>
