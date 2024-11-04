@@ -94,6 +94,10 @@ export default function ImprovedTypingSpeedTester() {
   const wpmRef = useRef(wpm);
   const accuracyRef = useRef(accuracy);
 
+  // Refs for shortcut detection
+  const tabPressedRef = useRef(false);
+  const tabTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     generateWords(50); // Initialize with a larger number of words
 
@@ -103,8 +107,12 @@ export default function ImprovedTypingSpeedTester() {
       window.addEventListener("resize", handleResize);
     }
 
+    // Add global keydown listener for shortcuts
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -166,6 +174,28 @@ export default function ImprovedTypingSpeedTester() {
     }
   }, [gameState]);
 
+  // Handler for global keydown events to detect Tab + Enter
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Tab") {
+      e.preventDefault(); // Prevent default tab behavior
+      tabPressedRef.current = true;
+
+      // Start a timer to reset the tabPressed flag
+      if (tabTimerRef.current) {
+        clearTimeout(tabTimerRef.current);
+      }
+      tabTimerRef.current = setTimeout(() => {
+        tabPressedRef.current = false;
+      }, 500); // 500ms window for Enter to be pressed after Tab
+    } else if (e.key === "Enter" && tabPressedRef.current) {
+      e.preventDefault();
+      resetGame();
+      tabPressedRef.current = false;
+      if (tabTimerRef.current) {
+        clearTimeout(tabTimerRef.current);
+      }
+    }
+  };
 
   const generateWords = (count = 10) => {
     const newWords = Array(count)
@@ -209,7 +239,7 @@ export default function ImprovedTypingSpeedTester() {
       setUserInput("");
       setCharacterAccuracy([]);
 
-      // Append new words if nearing the end to maintain the continuous strip
+      // Append new words if nearing the end 
       if (newWordIndex >= currentWords.length - 20) {
         generateWords(10);
       }
@@ -418,6 +448,13 @@ export default function ImprovedTypingSpeedTester() {
           </Button>
         </>
       )}
+
+      {/* Footer with Shortcut Information */}
+      <footer className="mt-8 w-full max-w-2xl text-center text-sm text-gray-500">
+        Press <kbd className="font-mono bg-gray-200 px-1 rounded">Tab</kbd> +{" "}
+        <kbd className="font-mono bg-gray-200 px-1 rounded">Enter</kbd> to restart
+        the game.
+      </footer>
     </div>
   );
 }
