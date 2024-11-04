@@ -153,6 +153,20 @@ export default function ImprovedTypingSpeedTester() {
     }
   }, [gameState, startTime, testDuration]);
 
+  useEffect(() => {
+    // Focus the input element on initial page load
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (gameState === "typing" && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [gameState]);
+
+
   const generateWords = (count = 10) => {
     const newWords = Array(count)
       .fill(null)
@@ -243,7 +257,7 @@ export default function ImprovedTypingSpeedTester() {
 
   return (
     <div className="mx-auto p-4 flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Type Racer</h1>
+      {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
       {gameState === "typing" && (
         <>
           <div className="mb-4 w-full max-w-2xl">
