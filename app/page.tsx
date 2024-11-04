@@ -90,8 +90,12 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
+  // Refs to store the wpm and accuracy without causing re-renders
+  const wpmRef = useRef(wpm);
+  const accuracyRef = useRef(accuracy);
+
   useEffect(() => {
-    generateWords(50); // Initialize with a larger number of words for smooth scrolling
+    generateWords(50); // Initialize with a larger number of words
 
     // Measure container width for dynamic centering
     if (containerRef.current) {
@@ -111,29 +115,43 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   useEffect(() => {
+    // Update refs whenever wpm or accuracy changes
+    wpmRef.current = wpm;
+    accuracyRef.current = accuracy;
+  }, [wpm, accuracy]);
+
+  useEffect(() => {
     if (gameState === "typing" && startTime !== 0) {
       const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
+        setTimeLeft((prevTimeLeft) => {
+          const newTimeLeft = prevTimeLeft - 1;
+
+          if (newTimeLeft <= 0) {
             clearInterval(timer);
             endGame();
             return 0;
           }
-          return prev - 1;
-        });
 
-        // Update performance data every 5 seconds
-        if (timeLeft > 0 && timeLeft % 5 === 0) {
-          setPerformanceData((prev) => [
-            ...prev,
-            { time: testDuration - timeLeft, wpm, accuracy },
-          ]);
-        }
+          // Update performance data every 5 seconds
+          const timeElapsed = testDuration - newTimeLeft;
+          if (timeElapsed > 0 && timeElapsed % 5 === 0) {
+            setPerformanceData((prev) => [
+              ...prev,
+              {
+                time: timeElapsed,
+                wpm: wpmRef.current,
+                accuracy: accuracyRef.current,
+              },
+            ]);
+          }
+
+          return newTimeLeft;
+        });
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [gameState, timeLeft, startTime, wpm, accuracy, testDuration]);
+  }, [gameState, startTime, testDuration]);
 
   const generateWords = (count = 10) => {
     const newWords = Array(count)
@@ -167,23 +185,28 @@ export default function ImprovedTypingSpeedTester() {
 
     if (inputValue.endsWith(" ")) {
       const typedWord = inputValue.trim();
-      if (typedWord === currentWords[wordIndex]) {
-        setCorrectWords((prev) => prev + 1);
-      }
-      setWordIndex((prev) => prev + 1);
+      const isCorrect = typedWord === currentWords[wordIndex];
+
+      const newCorrectWords = isCorrect ? correctWords + 1 : correctWords;
+      const newWordIndex = wordIndex + 1;
+
+      setCorrectWords(newCorrectWords);
+      setWordIndex(newWordIndex);
       setUserInput("");
       setCharacterAccuracy([]);
 
       // Append new words if nearing the end to maintain the continuous strip
-      if (wordIndex >= currentWords.length - 20) {
+      if (newWordIndex >= currentWords.length - 20) {
         generateWords(10);
       }
 
       // Calculate WPM and accuracy
-      const timeElapsed = (Date.now() - startTime) / 60000; // in minutes
-      const newWpm = Math.round(correctWords / timeElapsed);
+      const timeElapsed = (Date.now() - startTime) / 60000;
+      const newWpm = Math.round(newCorrectWords / timeElapsed || 0);
       const newAccuracy =
-        wordIndex > 0 ? Math.round((correctWords / wordIndex) * 100) : 100;
+        newWordIndex > 0
+          ? Math.round((newCorrectWords / newWordIndex) * 100)
+          : 100;
       setWpm(newWpm);
       setAccuracy(newAccuracy);
     }
@@ -192,7 +215,7 @@ export default function ImprovedTypingSpeedTester() {
   const resetGame = () => {
     setGameState("typing");
     setCurrentWords([]);
-    generateWords(50); // Reinitialize with more words for continuous strip
+    generateWords(50);
     setWordIndex(0);
     setCorrectWords(0);
     setStartTime(0);
@@ -208,18 +231,13 @@ export default function ImprovedTypingSpeedTester() {
     const duration = parseInt(value);
     setTestDuration(duration);
     setTimeLeft(duration);
-    resetGame(); // Reset the game when duration changes
+    resetGame();
   };
 
-  // Calculate translation to center the current word
   const calculateTranslateX = () => {
-    // Each word has a fixed width of 120px
     const wordWidth = 120;
-    // Center of the container
     const centerPosition = containerWidth / 2;
-    // Position where the current word should be placed
     const targetPosition = wordIndex * wordWidth + wordWidth / 2;
-    // Calculate the translateX needed to center the current word
     return centerPosition - targetPosition;
   };
 
@@ -329,7 +347,8 @@ export default function ImprovedTypingSpeedTester() {
             </div>
           </div>
 
-          {/* <div className="mb-6 w-full max-w-2xl">
+          {/* Performance Over Time Chart 
+          <div className="mb-6 w-full max-w-2xl">
             <h3 className="text-xl font-semibold mb-2">
               Performance Over Time
             </h3>
@@ -377,7 +396,8 @@ export default function ImprovedTypingSpeedTester() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div> */}
+          </div>
+          */}
 
           <Button onClick={resetGame} className="w-full max-w-2xl">
             Try Again
