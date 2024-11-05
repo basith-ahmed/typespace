@@ -88,6 +88,7 @@ export default function ImprovedTypingSpeedTester() {
     { time: number; wpm: number; accuracy: number }[]
   >([]);
   const [characterAccuracy, setCharacterAccuracy] = useState<boolean[]>([]);
+  const [wordStatuses, setWordStatuses] = useState<boolean[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -234,6 +235,7 @@ export default function ImprovedTypingSpeedTester() {
       const typedWord = inputValue.trim();
       const isCorrect = typedWord === currentWords[wordIndex];
 
+      setWordStatuses((prevStatuses) => [...prevStatuses, isCorrect]);
       const newCorrectWords = isCorrect ? correctWords + 1 : correctWords;
       const newWordIndex = wordIndex + 1;
 
@@ -272,6 +274,7 @@ export default function ImprovedTypingSpeedTester() {
     setPerformanceData([]);
     setCharacterAccuracy([]);
     setUserInput("");
+    setWordStatuses([]);
   };
 
   const handleDurationChange = (value: string) => {
@@ -325,7 +328,7 @@ export default function ImprovedTypingSpeedTester() {
               className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
             >
               <div
-                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-300"
+                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg"
                 style={{
                   transform: `translateX(${calculateTranslateX()}px)`,
                 }}
@@ -333,13 +336,34 @@ export default function ImprovedTypingSpeedTester() {
                 {currentWords.map((word, index) => (
                   <span
                     key={index}
-                    className={`inline-block w-[120px] text-center  ${
-                      index === wordIndex
-                        ? "text-primary font-bold text-xl"
+                    className={`inline-block w-[120px] text-center ${
+                      index < wordIndex
+                        ? wordStatuses[index]
+                          ? "text-green-500"
+                          : "text-red-500"
+                        : index === wordIndex
+                        ? "text-primary font-bold text-2xl"
                         : "text-muted-foreground text-lg"
                     }`}
                   >
-                    {word}
+                    {index === wordIndex
+                      ? // If it's the current word being typed, split into characters
+                        word.split("").map((char, charIndex) => (
+                          <span
+                            key={charIndex}
+                            className={`inline-block ${
+                              charIndex < characterAccuracy.length
+                                ? characterAccuracy[charIndex]
+                                  ? "text-green-500"
+                                  : "text-red-500"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {char}
+                          </span>
+                        ))
+                      : // For other words, display normally
+                        word}
                   </span>
                 ))}
               </div>
