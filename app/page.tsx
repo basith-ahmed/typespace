@@ -327,6 +327,8 @@ export default function ImprovedTypingSpeedTester() {
               ref={containerRef}
               className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
             >
+              <div className="absolute left-0 h-full w-[20px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
+              <div className="absolute right-0 h-full w-[20px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
               <div
                 className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg"
                 style={{
@@ -420,59 +422,6 @@ export default function ImprovedTypingSpeedTester() {
                 </div>
               </div>
             </div>
-
-            {/* Performance Over Time Chart 
-          <div className="mb-6 w-full max-w-2xl">
-            <h3 className="text-xl font-semibold mb-2">
-              Performance Over Time
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="time"
-                    label={{
-                      value: "Time (seconds)",
-                      position: "insideBottom",
-                      offset: -5,
-                    }}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    label={{ value: "WPM", angle: -90, position: "insideLeft" }}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    label={{
-                      value: "Accuracy (%)",
-                      angle: 90,
-                      position: "insideRight",
-                    }}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="wpm"
-                    stroke="hsl(var(--primary))"
-                    name="WPM"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="accuracy"
-                    stroke="hsl(var(--secondary))"
-                    name="Accuracy"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          */}
-
             <Button onClick={resetGame} className="w-full max-w-2xl">
               Try Again
             </Button>
