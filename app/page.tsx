@@ -11,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Link2 } from "lucide-react";
+import Particles from "@/components/ui/particles";
+import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 
 const words = [
   "the",
@@ -239,7 +242,7 @@ export default function ImprovedTypingSpeedTester() {
       setUserInput("");
       setCharacterAccuracy([]);
 
-      // Append new words if nearing the end 
+      // Append new words if nearing the end
       if (newWordIndex >= currentWords.length - 20) {
         generateWords(10);
       }
@@ -286,112 +289,115 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   return (
-    <div className="mx-auto p-4 flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
-      {gameState === "typing" && (
-        <>
-          <div className="mb-4 w-full max-w-2xl">
-            <div className="flex justify-between items-center mb-2">
-              <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
-              <Select
-                value={testDuration.toString()}
-                onValueChange={handleDurationChange}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="15">15 seconds</SelectItem>
-                  <SelectItem value="30">30 seconds</SelectItem>
-                  <SelectItem value="60">1 minute</SelectItem>
-                  <SelectItem value="120">2 minutes</SelectItem>
-                  <SelectItem value="300">5 minutes</SelectItem>
-                </SelectContent>
-              </Select>
+    <div className="h-screen flex flex-col relative">
+      <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full bg-gray-100">
+        {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
+        {gameState === "typing" && (
+          <>
+            <div className="mb-4 w-full max-w-2xl">
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
+                <Select
+                  value={testDuration.toString()}
+                  onValueChange={handleDurationChange}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 seconds</SelectItem>
+                    <SelectItem value="30">30 seconds</SelectItem>
+                    <SelectItem value="60">1 minute</SelectItem>
+                    <SelectItem value="120">2 minutes</SelectItem>
+                    <SelectItem value="300">5 minutes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Progress
+                value={(timeLeft / testDuration) * 100}
+                className="w-full"
+              />
             </div>
-            <Progress
-              value={(timeLeft / testDuration) * 100}
-              className="w-full"
-            />
-          </div>
 
-          {/* Continuous Infinite Strip of Words with Centered Current Word */}
-          <div
-            ref={containerRef}
-            className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
-          >
+            {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
-              className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-300"
-              style={{
-                transform: `translateX(${calculateTranslateX()}px)`,
-              }}
+              ref={containerRef}
+              className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
             >
-              {currentWords.map((word, index) => (
+              <div
+                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-300"
+                style={{
+                  transform: `translateX(${calculateTranslateX()}px)`,
+                }}
+              >
+                {currentWords.map((word, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block w-[120px] text-center  ${
+                      index === wordIndex
+                        ? "text-primary font-bold text-xl"
+                        : "text-muted-foreground text-lg"
+                    }`}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Character Accuracy Indicators */}
+            <div className="mb-4 text-center min-h-8">
+              {characterAccuracy.map((isCorrect, index) => (
                 <span
                   key={index}
-                  className={`inline-block w-[120px] text-center text-lg ${
-                    index === wordIndex
-                      ? "text-primary font-bold"
-                      : "text-muted-foreground"
+                  className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                    isCorrect ? "bg-green-500" : "bg-red-500"
                   }`}
-                >
-                  {word}
-                </span>
+                />
               ))}
             </div>
-          </div>
 
-          {/* Character Accuracy Indicators */}
-          <div className="mb-4 text-center min-h-8">
-            {characterAccuracy.map((isCorrect, index) => (
-              <span
-                key={index}
-                className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
-                  isCorrect ? "bg-green-500" : "bg-red-500"
-                }`}
-              />
-            ))}
-          </div>
+            <Input
+              ref={inputRef}
+              type="text"
+              value={userInput}
+              onChange={handleInputChange}
+              className="mb-4 text-lg w-full max-w-2xl text-center border border-gray-300/50 rounded-lg px-4 py-2 focus:outline-none shadow-sm focus:shadow-lg z-10 backdrop-blur-sm"
+              placeholder="Start typing to begin."
+              aria-label="Type the words shown above"
+            />
 
-          <Input
-            ref={inputRef}
-            type="text"
-            value={userInput}
-            onChange={handleInputChange}
-            className="mb-4 text-lg w-full max-w-2xl text-center border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Start typing to begin..."
-            aria-label="Type the words shown above"
-          />
-
-          <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
-            <div>
-              <div className="text-3xl font-bold text-primary">{wpm}</div>
-              <div className="text-sm text-gray-600">WPM</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary">{accuracy}%</div>
-              <div className="text-sm text-gray-600">Accuracy</div>
-            </div>
-          </div>
-        </>
-      )}
-      {gameState === "result" && (
-        <>
-          <div className="text-center mb-6 w-full max-w-2xl">
-            <h2 className="text-3xl font-bold mb-4">Results</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
               <div>
-                <p className="text-4xl font-bold text-primary">{wpm}</p>
-                <p className="text-lg text-gray-600">Words per Minute</p>
+                <div className="text-3xl font-bold text-primary">{wpm}</div>
+                <div className="text-sm text-gray-600">WPM</div>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">{accuracy}%</p>
-                <p className="text-lg text-gray-600">Accuracy</p>
+                <div className="text-3xl font-bold text-primary">
+                  {accuracy}%
+                </div>
+                <div className="text-sm text-gray-600">Accuracy</div>
               </div>
             </div>
-          </div>
+          </>
+        )}
+        {gameState === "result" && (
+          <>
+            <div className="text-center mb-6 w-full max-w-2xl">
+              <h2 className="text-3xl font-bold mb-4">Results</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-4xl font-bold text-primary">{wpm}</p>
+                  <p className="text-lg text-gray-600">Words per Minute</p>
+                </div>
+                <div>
+                  <p className="text-4xl font-bold text-primary">{accuracy}%</p>
+                  <p className="text-lg text-gray-600">Accuracy</p>
+                </div>
+              </div>
+            </div>
 
-          {/* Performance Over Time Chart 
+            {/* Performance Over Time Chart 
           <div className="mb-6 w-full max-w-2xl">
             <h3 className="text-xl font-semibold mb-2">
               Performance Over Time
@@ -443,18 +449,40 @@ export default function ImprovedTypingSpeedTester() {
           </div>
           */}
 
-          <Button onClick={resetGame} className="w-full max-w-2xl">
-            Try Again
-          </Button>
-        </>
-      )}
+            <Button onClick={resetGame} className="w-full max-w-2xl">
+              Try Again
+            </Button>
+          </>
+        )}
 
-      {/* Footer with Shortcut Information */}
-      <footer className="mt-8 w-full max-w-2xl text-center text-sm text-gray-500">
-        Press <kbd className="font-mono bg-gray-200 px-1 rounded">Tab</kbd> +{" "}
-        <kbd className="font-mono bg-gray-200 px-1 rounded">Enter</kbd> to restart
-        the game.
-      </footer>
+        {/* Footer with Shortcut Information */}
+        <footer className="mt-8 w-full max-w-2xl text-center text-sm text-gray-500">
+          Press <kbd className="font-mono bg-gray-200 px-1 rounded">Tab</kbd> +{" "}
+          <kbd className="font-mono bg-gray-200 px-1 rounded">Enter</kbd> to
+          restart the game.
+        </footer>
+      </div>
+      <a
+        className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10"
+        href="https://github.com/basith-ahmed/type-racer"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <AnimatedGradientText className="backdrop-blur-lg">
+          <div className="hover:underline text-sm flex justify-center items-center">
+            View on GitHub
+            <Link2 className="w-4 h-4 ml-1" />
+          </div>
+        </AnimatedGradientText>
+      </a>
+      <Particles
+        className="absolute inset-0"
+        quantity={100}
+        ease={200}
+        // staticity={30}
+        color="#000000"
+        refresh
+      />
     </div>
   );
 }
