@@ -14,6 +14,7 @@ import {
 import { Link2 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { Dock, DockIcon } from "@/components/ui/dock";
 
 const words = [
   "the",
@@ -297,6 +298,13 @@ export default function ImprovedTypingSpeedTester() {
         {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
         {gameState === "typing" && (
           <>
+            <Dock direction="middle" className="h-8 -mt-8 mb-6">
+              <DockIcon>O</DockIcon>
+              <DockIcon>P</DockIcon>
+              <DockIcon>P</DockIcon>
+              <DockIcon>A</DockIcon>
+              <DockIcon>I</DockIcon>
+            </Dock>
             <div className="mb-4 w-full max-w-2xl">
               <div className="flex justify-between items-center mb-2">
                 <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
