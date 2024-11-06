@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -15,121 +15,8 @@ import { Link2 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 
-const words = [
-  "the",
-  "be",
-  "to",
-  "of",
-  "and",
-  "a",
-  "in",
-  "that",
-  "have",
-  "I",
-  "it",
-  "for",
-  "not",
-  "on",
-  "with",
-  "he",
-  "as",
-  "you",
-  "do",
-  "at",
-  "this",
-  "but",
-  "his",
-  "by",
-  "from",
-  "they",
-  "we",
-  "say",
-  "her",
-  "she",
-  "or",
-  "an",
-  "will",
-  "my",
-  "one",
-  "all",
-  "would",
-  "there",
-  "their",
-  "what",
-  "so",
-  "up",
-  "out",
-  "if",
-  "about",
-  "who",
-  "get",
-  "which",
-  "go",
-  "me",
-  "when",
-  "make",
-  "can",
-  "like",
-  "time",
-  "no",
-  "just",
-  "him",
-  "know",
-  "take",
-  "people",
-  "into",
-  "year",
-  "your",
-  "good",
-  "some",
-  "could",
-  "them",
-  "see",
-  "other",
-  "than",
-  "then",
-  "now",
-  "look",
-  "only",
-  "come",
-  "its",
-  "over",
-  "think",
-  "also",
-  "back",
-  "after",
-  "use",
-  "two",
-  "how",
-  "our",
-  "work",
-  "first",
-  "well",
-  "way",
-  "even",
-  "new",
-  "want",
-  "because",
-  "any",
-  "these",
-  "give",
-  "day",
-  "most",
-  "us",
-];
-
-const sampleSentences = [
-  "The quick brown fox jumps over the lazy dog.",
-  "I can't believe it's already October!",
-  "She said, 'Hello!' and waved.",
-  "Do you know where I left my keys?",
-  "It's a beautiful day, isn't it?",
-  "He scored 100 points in the game.",
-  "They've been friends for 10 years.",
-  "Why don't we try something new?",
-  "Let's meet at 5:30 pm.",
-  "Can you solve this problem: 5 + 7?",
-];
+import { words } from "@/constants/words";
+import { sampleSentences } from "@/constants/sampleSentences";
 
 export default function ImprovedTypingSpeedTester() {
   const [gameState, setGameState] = useState<"typing" | "result">("typing");
@@ -262,49 +149,57 @@ export default function ImprovedTypingSpeedTester() {
     }
   };
 
-  const generateWords = (count = 10) => {
-    let newWords: string[] = [];
+  const generateWords = useCallback(
+    (count = 10) => {
+      let newWords: string[] = [];
 
-    if (includePunctuation) {
-      while (newWords.length < count) {
-        const sentence =
-          sampleSentences[Math.floor(Math.random() * sampleSentences.length)];
-        let wordsInSentence = sentence.split(" ");
+      if (includePunctuation) {
+        while (newWords.length < count) {
+          const sentence =
+            sampleSentences[Math.floor(Math.random() * sampleSentences.length)];
+          let wordsInSentence = sentence.split(" ");
 
-        if (!includeNumbers) {
-          // Remove words that are numbers
-          wordsInSentence = wordsInSentence.filter((word) => !/\d/.test(word));
+          if (!includeNumbers) {
+            // Remove words that are numbers
+            wordsInSentence = wordsInSentence.filter(
+              (word) => !/\d/.test(word)
+            );
+          }
+
+          newWords.push(...wordsInSentence);
+        }
+      } else {
+        const wordPool = [...words];
+
+        if (includeNumbers) {
+          wordPool.push(...Array.from({ length: 10 }, (_, i) => i.toString()));
         }
 
-        newWords.push(...wordsInSentence);
-      }
-    } else {
-      const wordPool = [...words];
-
-      if (includeNumbers) {
-        wordPool.push(...Array.from({ length: 10 }, (_, i) => i.toString()));
+        newWords = Array(count)
+          .fill(null)
+          .map(() => wordPool[Math.floor(Math.random() * wordPool.length)]);
       }
 
-      newWords = Array(count)
-        .fill(null)
-        .map(() => wordPool[Math.floor(Math.random() * wordPool.length)]);
-    }
+      setCurrentWords((prevWords) => [
+        ...prevWords,
+        ...newWords.slice(0, count),
+      ]);
+    },
+    [includePunctuation, includeNumbers]
+  );
 
-    setCurrentWords((prevWords) => [...prevWords, ...newWords.slice(0, count)]);
-  };
-
-  const updateCurrentWords = () => {
-    const wordsTyped = currentWords.slice(0, wordIndex);
-    setCurrentWords(wordsTyped);
-    generateWords(50); // Generate new words according to the settings
-  };
-
-  // When options change, update the currentWords
+  // Adjusted useEffect to reset state when options change
   useEffect(() => {
     if (gameState === "typing") {
-      updateCurrentWords();
+      // Reset current words and word index
+      setCurrentWords([]); // Clear the current words
+      setWordIndex(0); // Reset the word index
+      setUserInput(""); // Clear the user input
+      setCharacterAccuracy([]); // Reset character accuracy
+      setWordStatuses([]); // Reset word statuses
+      generateWords(50); // Generate new words according to the settings
     }
-  }, [includePunctuation, includeNumbers]);
+  }, [includePunctuation, includeNumbers, gameState, generateWords]);
 
   const startGame = () => {
     setStartTime(Date.now());
@@ -390,8 +285,16 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   return (
-    <div className="h-screen flex flex-col relative">
-      <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full bg-gray-100">
+    <div className="h-screen flex flex-col relative bg-gray-100">
+      <Particles
+        className="absolute inset-0"
+        quantity={100}
+        ease={200}
+        // staticity={30}
+        color="#000000"
+        refresh
+      />
+      <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
         {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
         {gameState === "typing" && (
           <>
@@ -426,6 +329,7 @@ export default function ImprovedTypingSpeedTester() {
                 variant={includePunctuation ? "default" : "outline"}
                 onClick={() => {
                   setIncludePunctuation(!includePunctuation);
+                  inputRef.current?.focus();
                 }}
               >
                 {includePunctuation ? "Disable" : "Enable"} Punctuation
@@ -434,6 +338,7 @@ export default function ImprovedTypingSpeedTester() {
                 variant={includeNumbers ? "default" : "outline"}
                 onClick={() => {
                   setIncludeNumbers(!includeNumbers);
+                  inputRef.current?.focus();
                 }}
               >
                 {includeNumbers ? "Disable" : "Enable"} Numbers
@@ -443,7 +348,11 @@ export default function ImprovedTypingSpeedTester() {
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
               ref={containerRef}
-              className="relative h-16 overflow-hidden mb-4 bg-secondary rounded-lg w-full max-w-2xl"
+              className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
+              }}
             >
               <div className="absolute left-0 h-full w-[20px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
               <div className="absolute right-0 h-full w-[20px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
@@ -566,14 +475,6 @@ export default function ImprovedTypingSpeedTester() {
           </div>
         </AnimatedGradientText>
       </a>
-      <Particles
-        className="absolute inset-0"
-        quantity={100}
-        ease={200}
-        // staticity={30}
-        color="#000000"
-        refresh
-      />
     </div>
   );
 }
