@@ -18,59 +18,117 @@ import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 const words = [
   "the",
   "be",
+  "to",
   "of",
   "and",
   "a",
-  "to",
   "in",
-  "he",
-  "have",
-  "it",
   "that",
+  "have",
+  "I",
+  "it",
   "for",
-  "they",
-  "with",
-  "as",
   "not",
   "on",
-  "she",
-  "at",
-  "by",
-  "this",
-  "we",
+  "with",
+  "he",
+  "as",
   "you",
   "do",
+  "at",
+  "this",
   "but",
+  "his",
+  "by",
   "from",
-  "or",
-  "which",
-  "one",
-  "would",
-  "all",
-  "will",
-  "there",
+  "they",
+  "we",
   "say",
-  "who",
-  "make",
-  "when",
-  "can",
-  "more",
-  "if",
-  "no",
-  "man",
-  "out",
-  "other",
-  "so",
+  "her",
+  "she",
+  "or",
+  "an",
+  "will",
+  "my",
+  "one",
+  "all",
+  "would",
+  "there",
+  "their",
   "what",
-  "time",
+  "so",
   "up",
-  "go",
+  "out",
+  "if",
   "about",
-  "than",
+  "who",
+  "get",
+  "which",
+  "go",
+  "me",
+  "when",
+  "make",
+  "can",
+  "like",
+  "time",
+  "no",
+  "just",
+  "him",
+  "know",
+  "take",
+  "people",
   "into",
+  "year",
+  "your",
+  "good",
+  "some",
   "could",
-  "state",
+  "them",
+  "see",
+  "other",
+  "than",
+  "then",
+  "now",
+  "look",
   "only",
+  "come",
+  "its",
+  "over",
+  "think",
+  "also",
+  "back",
+  "after",
+  "use",
+  "two",
+  "how",
+  "our",
+  "work",
+  "first",
+  "well",
+  "way",
+  "even",
+  "new",
+  "want",
+  "because",
+  "any",
+  "these",
+  "give",
+  "day",
+  "most",
+  "us",
+];
+
+const sampleSentences = [
+  "The quick brown fox jumps over the lazy dog.",
+  "I can't believe it's already October!",
+  "She said, 'Hello!' and waved.",
+  "Do you know where I left my keys?",
+  "It's a beautiful day, isn't it?",
+  "He scored 100 points in the game.",
+  "They've been friends for 10 years.",
+  "Why don't we try something new?",
+  "Let's meet at 5:30 pm.",
+  "Can you solve this problem: 5 + 7?",
 ];
 
 export default function ImprovedTypingSpeedTester() {
@@ -89,6 +147,9 @@ export default function ImprovedTypingSpeedTester() {
   >([]);
   const [characterAccuracy, setCharacterAccuracy] = useState<boolean[]>([]);
   const [wordStatuses, setWordStatuses] = useState<boolean[]>([]);
+
+  const [includePunctuation, setIncludePunctuation] = useState(false);
+  const [includeNumbers, setIncludeNumbers] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -202,11 +263,48 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   const generateWords = (count = 10) => {
-    const newWords = Array(count)
-      .fill(null)
-      .map(() => words[Math.floor(Math.random() * words.length)]);
-    setCurrentWords((prevWords) => [...prevWords, ...newWords]);
+    let newWords: string[] = [];
+
+    if (includePunctuation) {
+      while (newWords.length < count) {
+        const sentence =
+          sampleSentences[Math.floor(Math.random() * sampleSentences.length)];
+        let wordsInSentence = sentence.split(" ");
+
+        if (!includeNumbers) {
+          // Remove words that are numbers
+          wordsInSentence = wordsInSentence.filter((word) => !/\d/.test(word));
+        }
+
+        newWords.push(...wordsInSentence);
+      }
+    } else {
+      const wordPool = [...words];
+
+      if (includeNumbers) {
+        wordPool.push(...Array.from({ length: 10 }, (_, i) => i.toString()));
+      }
+
+      newWords = Array(count)
+        .fill(null)
+        .map(() => wordPool[Math.floor(Math.random() * wordPool.length)]);
+    }
+
+    setCurrentWords((prevWords) => [...prevWords, ...newWords.slice(0, count)]);
   };
+
+  const updateCurrentWords = () => {
+    const wordsTyped = currentWords.slice(0, wordIndex);
+    setCurrentWords(wordsTyped);
+    generateWords(50); // Generate new words according to the settings
+  };
+
+  // When options change, update the currentWords
+  useEffect(() => {
+    if (gameState === "typing") {
+      updateCurrentWords();
+    }
+  }, [includePunctuation, includeNumbers]);
 
   const startGame = () => {
     setStartTime(Date.now());
@@ -264,7 +362,6 @@ export default function ImprovedTypingSpeedTester() {
   const resetGame = () => {
     setGameState("typing");
     setCurrentWords([]);
-    generateWords(50);
     setWordIndex(0);
     setCorrectWords(0);
     setStartTime(0);
@@ -275,6 +372,7 @@ export default function ImprovedTypingSpeedTester() {
     setCharacterAccuracy([]);
     setUserInput("");
     setWordStatuses([]);
+    generateWords(50);
   };
 
   const handleDurationChange = (value: string) => {
@@ -320,6 +418,26 @@ export default function ImprovedTypingSpeedTester() {
                 value={(timeLeft / testDuration) * 100}
                 className="w-full"
               />
+            </div>
+
+            {/* Options for Punctuation and Numbers */}
+            <div className="mb-4 w-full max-w-2xl flex justify-center space-x-4">
+              <Button
+                variant={includePunctuation ? "default" : "outline"}
+                onClick={() => {
+                  setIncludePunctuation(!includePunctuation);
+                }}
+              >
+                {includePunctuation ? "Disable" : "Enable"} Punctuation
+              </Button>
+              <Button
+                variant={includeNumbers ? "default" : "outline"}
+                onClick={() => {
+                  setIncludeNumbers(!includeNumbers);
+                }}
+              >
+                {includeNumbers ? "Disable" : "Enable"} Numbers
+              </Button>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
