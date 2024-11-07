@@ -44,7 +44,7 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Toogles
+  // toogle state variables
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
     useState(true);
@@ -451,6 +451,7 @@ export default function ImprovedTypingSpeedTester() {
                 background:
                   "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
               }}
+              onClick={() => inputRef.current?.focus()}
             >
               <div className="absolute left-0 h-full w-[20px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
               <div className="absolute right-0 h-full w-[20px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
@@ -473,24 +474,45 @@ export default function ImprovedTypingSpeedTester() {
                         : "text-muted-foreground text-lg"
                     }`}
                   >
-                    {index === wordIndex
-                      ? // If it's the current word being typed, split into characters
-                        word.split("").map((char, charIndex) => (
-                          <span
-                            key={charIndex}
-                            className={`inline-block ${
+                    <div className="relative inline-block">
+                      {index === wordIndex
+                        ? word.split("").map((char, charIndex) => {
+                            const isCorrect =
                               charIndex < characterAccuracy.length
                                 ? characterAccuracy[charIndex]
-                                  ? "text-green-500"
-                                  : "text-red-500"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            {char}
-                          </span>
-                        ))
-                      : // For other words, display normally
-                        word}
+                                : null;
+                            const className =
+                              isCorrect === true
+                                ? "text-green-500"
+                                : isCorrect === false
+                                ? "text-red-500"
+                                : "text-muted-foreground";
+                            return (
+                              <span
+                                key={charIndex}
+                                className={`inline-block ${className}`}
+                              >
+                                {char}
+                              </span>
+                            );
+                          })
+                        : word}
+                      {/* Overlay Cursor */}
+                      {index === wordIndex && (
+                        <span
+                          className="absolute top-0 h-full bg-black animate-pulse"
+                          style={{
+                            left: `${
+                              (userInput.length /
+                                currentWords[wordIndex].length) *
+                              100
+                            }%`,
+                            width: "2px",
+                            transition: "left 0.01s linear",
+                          }}
+                        />
+                      )}
+                    </div>
                   </span>
                 ))}
               </div>
@@ -510,7 +532,7 @@ export default function ImprovedTypingSpeedTester() {
               </div>
             )}
 
-            {/* Input Field w/o UI */}
+            {/* Invisible Input Field */}
             <input
               ref={inputRef}
               type="text"
