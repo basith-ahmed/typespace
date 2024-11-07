@@ -29,7 +29,7 @@ export default function ImprovedTypingSpeedTester() {
   const [accuracy, setAccuracy] = useState(100);
   const [testDuration, setTestDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState(testDuration);
-  const [testWordCount, setTestWordCount] = useState(15);
+  const [testWordCount, setTestWordCount] = useState(10);
   const [performanceData, setPerformanceData] = useState<
     { time: number; wpm: number; accuracy: number }[]
   >([]);
@@ -360,9 +360,8 @@ export default function ImprovedTypingSpeedTester() {
                       <SelectContent>
                         <SelectItem value="15">15 seconds</SelectItem>
                         <SelectItem value="30">30 seconds</SelectItem>
-                        <SelectItem value="60">1 minute</SelectItem>
-                        <SelectItem value="120">2 minutes</SelectItem>
-                        <SelectItem value="300">5 minutes</SelectItem>
+                        <SelectItem value="60">60 seconds</SelectItem>
+                        <SelectItem value="120">120 seconds</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
@@ -374,11 +373,10 @@ export default function ImprovedTypingSpeedTester() {
                         <SelectValue placeholder="Select word count" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="15">15 words</SelectItem>
-                        <SelectItem value="30">30 words</SelectItem>
-                        <SelectItem value="60">60 words</SelectItem>
-                        <SelectItem value="120">120 words</SelectItem>
-                        <SelectItem value="300">300 words</SelectItem>
+                        <SelectItem value="10">10 words</SelectItem>
+                        <SelectItem value="25">25 words</SelectItem>
+                        <SelectItem value="50">50 words</SelectItem>
+                        <SelectItem value="100">100 words</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -391,7 +389,7 @@ export default function ImprovedTypingSpeedTester() {
                 />
               ) : (
                 <Progress
-                  value={(wordIndex / testWordCount) * 100}
+                  value={100 - ((wordIndex / testWordCount) * 100)}
                   className="w-full"
                 />
               )}
