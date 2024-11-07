@@ -29,6 +29,7 @@ export default function ImprovedTypingSpeedTester() {
   const [accuracy, setAccuracy] = useState(100);
   const [testDuration, setTestDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState(testDuration);
+  const [testWordCount, setTestWordCount] = useState(15);
   const [performanceData, setPerformanceData] = useState<
     { time: number; wpm: number; accuracy: number }[]
   >([]);
@@ -37,6 +38,8 @@ export default function ImprovedTypingSpeedTester() {
 
   const [includePunctuation, setIncludePunctuation] = useState(false);
   const [includeNumbers, setIncludeNumbers] = useState(false);
+
+  const [testMode, setTestMode] = useState<"time" | "words">("time");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,14 +77,14 @@ export default function ImprovedTypingSpeedTester() {
     }
   };
 
+  // Update refs whenever wpm or accuracy changes
   useEffect(() => {
-    // Update refs whenever wpm or accuracy changes
     wpmRef.current = wpm;
     accuracyRef.current = accuracy;
   }, [wpm, accuracy]);
 
   useEffect(() => {
-    if (gameState === "typing" && startTime !== 0) {
+    if (gameState === "typing" && startTime !== 0 && testMode === "time") {
       const timer = setInterval(() => {
         setTimeLeft((prevTimeLeft) => {
           const newTimeLeft = prevTimeLeft - 1;
@@ -111,10 +114,10 @@ export default function ImprovedTypingSpeedTester() {
 
       return () => clearInterval(timer);
     }
-  }, [gameState, startTime, testDuration]);
+  }, [gameState, startTime, testDuration, testMode]);
 
+  // Focus the input element on initial page load
   useEffect(() => {
-    // Focus the input element on initial page load
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -129,7 +132,7 @@ export default function ImprovedTypingSpeedTester() {
   // Handler for global keydown events to detect Tab + Enter
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Tab") {
-      e.preventDefault(); // Prevent default tab behavior
+      e.preventDefault();
       tabPressedRef.current = true;
 
       // Start a timer to reset the tabPressed flag
@@ -188,22 +191,30 @@ export default function ImprovedTypingSpeedTester() {
     [includePunctuation, includeNumbers]
   );
 
-  // Adjusted useEffect to reset state when options change
+  // useEffect to reset state when options change
   useEffect(() => {
     if (gameState === "typing") {
-      // Reset current words and word index
-      setCurrentWords([]); // Clear the current words
-      setWordIndex(0); // Reset the word index
-      setUserInput(""); // Clear the user input
-      setCharacterAccuracy([]); // Reset character accuracy
-      setWordStatuses([]); // Reset word statuses
-      generateWords(50); // Generate new words according to the settings
+      setCurrentWords([]);
+      setWordIndex(0);
+      setUserInput("");
+      setCharacterAccuracy([]);
+      setWordStatuses([]);
+      generateWords(50); 
     }
-  }, [includePunctuation, includeNumbers, gameState, generateWords]);
+  }, [
+    includePunctuation,
+    includeNumbers,
+    gameState,
+    generateWords,
+    testMode,
+    testWordCount,
+  ]);
 
   const startGame = () => {
     setStartTime(Date.now());
-    setTimeLeft(testDuration);
+    if (testMode === "time") {
+      setTimeLeft(testDuration);
+    }
     if (inputRef.current) inputRef.current.focus();
   };
 
@@ -251,6 +262,11 @@ export default function ImprovedTypingSpeedTester() {
           : 100;
       setWpm(newWpm);
       setAccuracy(newAccuracy);
+
+      // For word count mode, check if the test is over
+      if (testMode === "words" && newWordIndex >= testWordCount) {
+        endGame();
+      }
     }
   };
 
@@ -262,7 +278,9 @@ export default function ImprovedTypingSpeedTester() {
     setStartTime(0);
     setWpm(0);
     setAccuracy(100);
-    setTimeLeft(testDuration);
+    if (testMode === "time") {
+      setTimeLeft(testDuration);
+    }
     setPerformanceData([]);
     setCharacterAccuracy([]);
     setUserInput("");
@@ -274,6 +292,12 @@ export default function ImprovedTypingSpeedTester() {
     const duration = parseInt(value);
     setTestDuration(duration);
     setTimeLeft(duration);
+    resetGame();
+  };
+
+  const handleWordCountChange = (value: string) => {
+    const wordCount = parseInt(value);
+    setTestWordCount(wordCount);
     resetGame();
   };
 
@@ -290,37 +314,87 @@ export default function ImprovedTypingSpeedTester() {
         className="absolute inset-0"
         quantity={100}
         ease={200}
-        // staticity={30}
         color="#000000"
         refresh
       />
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
-        {/* <h1 className="text-3xl font-bold mb-6">Type Racer</h1> */}
         {gameState === "typing" && (
           <>
             <div className="mb-4 w-full max-w-2xl">
               <div className="flex justify-between items-center mb-2">
-                <div className="text-2xl font-bold">Time left: {timeLeft}s</div>
-                <Select
-                  value={testDuration.toString()}
-                  onValueChange={handleDurationChange}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select duration" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15">15 seconds</SelectItem>
-                    <SelectItem value="30">30 seconds</SelectItem>
-                    <SelectItem value="60">1 minute</SelectItem>
-                    <SelectItem value="120">2 minutes</SelectItem>
-                    <SelectItem value="300">5 minutes</SelectItem>
-                  </SelectContent>
-                </Select>
+                {testMode === "time" ? (
+                  <div className="text-2xl font-bold">
+                    Time left: {timeLeft}s
+                  </div>
+                ) : (
+                  <div className="text-2xl font-bold">
+                    Words left: {testWordCount - wordIndex}
+                  </div>
+                )}
+                <div className="flex space-x-2">
+                  {/* Mode Selector */}
+                  <Select
+                    value={testMode}
+                    onValueChange={(value) => {
+                      setTestMode(value as "time" | "words");
+                      resetGame();
+                    }}
+                  >
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Select mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="time">Time Mode</SelectItem>
+                      <SelectItem value="words">Word Mode</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {testMode === "time" ? (
+                    <Select
+                      value={testDuration.toString()}
+                      onValueChange={handleDurationChange}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Select duration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 seconds</SelectItem>
+                        <SelectItem value="30">30 seconds</SelectItem>
+                        <SelectItem value="60">1 minute</SelectItem>
+                        <SelectItem value="120">2 minutes</SelectItem>
+                        <SelectItem value="300">5 minutes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Select
+                      value={testWordCount.toString()}
+                      onValueChange={handleWordCountChange}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Select word count" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 words</SelectItem>
+                        <SelectItem value="30">30 words</SelectItem>
+                        <SelectItem value="60">60 words</SelectItem>
+                        <SelectItem value="120">120 words</SelectItem>
+                        <SelectItem value="300">300 words</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
               </div>
-              <Progress
-                value={(timeLeft / testDuration) * 100}
-                className="w-full"
-              />
+              {testMode === "time" ? (
+                <Progress
+                  value={(timeLeft / testDuration) * 100}
+                  className="w-full"
+                />
+              ) : (
+                <Progress
+                  value={(wordIndex / testWordCount) * 100}
+                  className="w-full"
+                />
+              )}
             </div>
 
             {/* Options for Punctuation and Numbers */}
