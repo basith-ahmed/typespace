@@ -45,6 +45,9 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
+  // New state variable to toggle performance display
+  const [showPerformance, setShowPerformance] = useState(true);
+
   // Refs to store the wpm and accuracy without causing re-renders
   const wpmRef = useRef(wpm);
   const accuracyRef = useRef(accuracy);
@@ -199,7 +202,7 @@ export default function ImprovedTypingSpeedTester() {
       setUserInput("");
       setCharacterAccuracy([]);
       setWordStatuses([]);
-      generateWords(50); 
+      generateWords(50);
     }
   }, [
     includePunctuation,
@@ -389,13 +392,13 @@ export default function ImprovedTypingSpeedTester() {
                 />
               ) : (
                 <Progress
-                  value={100 - ((wordIndex / testWordCount) * 100)}
+                  value={100 - (wordIndex / testWordCount) * 100}
                   className="w-full"
                 />
               )}
             </div>
 
-            {/* Options for Punctuation and Numbers */}
+            {/* Options for Punctuation, Numbers, and Performance Display */}
             <div className="mb-4 w-full max-w-2xl flex justify-center space-x-4">
               <Button
                 variant={includePunctuation ? "default" : "outline"}
@@ -414,6 +417,15 @@ export default function ImprovedTypingSpeedTester() {
                 }}
               >
                 {includeNumbers ? "Disable" : "Enable"} Numbers
+              </Button>
+              <Button
+                variant={showPerformance ? "default" : "outline"}
+                onClick={() => {
+                  setShowPerformance(!showPerformance);
+                  inputRef.current?.focus();
+                }}
+              >
+                {showPerformance ? "Hide" : "Show"} WPM & Accuracy
               </Button>
             </div>
 
@@ -492,18 +504,21 @@ export default function ImprovedTypingSpeedTester() {
               aria-label="Type the words shown above"
             />
 
-            <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
-              <div>
-                <div className="text-3xl font-bold text-primary">{wpm}</div>
-                <div className="text-sm text-gray-600">WPM</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">
-                  {accuracy}%
+            {/* Conditionally render WPM and Accuracy */}
+            {showPerformance && (
+              <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
+                <div>
+                  <div className="text-3xl font-bold text-primary">{wpm}</div>
+                  <div className="text-sm text-gray-600">WPM</div>
                 </div>
-                <div className="text-sm text-gray-600">Accuracy</div>
+                <div>
+                  <div className="text-3xl font-bold text-primary">
+                    {accuracy}%
+                  </div>
+                  <div className="text-sm text-gray-600">Accuracy</div>
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
         {gameState === "result" && (
