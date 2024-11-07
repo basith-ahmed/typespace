@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -45,8 +44,10 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // New state variable to toggle performance display
+  // Toogles
   const [showPerformance, setShowPerformance] = useState(true);
+  const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
+    useState(true);
 
   // Refs to store the wpm and accuracy without causing re-renders
   const wpmRef = useRef(wpm);
@@ -427,6 +428,19 @@ export default function ImprovedTypingSpeedTester() {
               >
                 {showPerformance ? "Hide" : "Show"} WPM & Accuracy
               </Button>
+              {/* Button to toggle character accuracy indicator */}
+              <Button
+                variant={showCharacterAccuracyIndicator ? "default" : "outline"}
+                onClick={() => {
+                  setShowCharacterAccuracyIndicator(
+                    !showCharacterAccuracyIndicator
+                  );
+                  inputRef.current?.focus();
+                }}
+              >
+                {showCharacterAccuracyIndicator ? "Hide" : "Show"} Character
+                Accuracy
+              </Button>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
@@ -483,24 +497,26 @@ export default function ImprovedTypingSpeedTester() {
             </div>
 
             {/* Character Accuracy Indicators */}
-            <div className="mb-4 text-center min-h-8">
-              {characterAccuracy.map((isCorrect, index) => (
-                <span
-                  key={index}
-                  className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
-                    isCorrect ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-              ))}
-            </div>
+            {showCharacterAccuracyIndicator && (
+              <div className="mb-4 text-center min-h-8">
+                {characterAccuracy.map((isCorrect, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                      isCorrect ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
 
-            <Input
+            {/* Input Field w/o UI */}
+            <input
               ref={inputRef}
               type="text"
               value={userInput}
               onChange={handleInputChange}
-              className="mb-4 text-lg w-full max-w-2xl text-center border border-gray-300/50 rounded-lg px-4 py-2 focus:outline-none shadow-sm focus:shadow-lg z-10 backdrop-blur-sm"
-              placeholder="Start typing to begin."
+              style={{ position: "absolute", left: "-9999px" }}
               aria-label="Type the words shown above"
             />
 
