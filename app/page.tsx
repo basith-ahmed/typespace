@@ -607,7 +607,7 @@ export default function ImprovedTypingSpeedTester() {
               <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
               <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
               <div
-                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg"
+                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold"
                 style={{
                   transform: `translateX(${calculateTranslateX()}px)`,
                 }}
@@ -621,8 +621,8 @@ export default function ImprovedTypingSpeedTester() {
                           ? "text-green-500"
                           : "text-red-500"
                         : index === wordIndex
-                        ? "text-primary font-bold text-2xl"
-                        : "text-muted-foreground text-lg"
+                        ? "text-primary font-bold text-3xl"
+                        : "text-muted-foreground font-semibold text-xl"
                     }`}
                   >
                     <div className="inline-block">
@@ -690,6 +690,16 @@ export default function ImprovedTypingSpeedTester() {
               type="text"
               value={userInput}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "ArrowLeft" ||
+                  e.key === "ArrowRight" ||
+                  e.key === "ArrowUp" ||
+                  e.key === "ArrowDown"
+                ) {
+                  e.preventDefault();
+                }
+              }}
               style={{ position: "absolute", left: "-9999px" }}
               aria-label="Type the words shown above"
             />
