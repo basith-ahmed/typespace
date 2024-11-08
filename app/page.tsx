@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { Dock, DockIcon } from "@/components/ui/dock";
 
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -542,7 +543,13 @@ export default function ImprovedTypingSpeedTester() {
                   )}
                 </AnimatePresence>
               </motion.div>
-            </div>
+            <Dock direction="middle" className="h-8 -mt-8 mb-6">
+              <DockIcon>O</DockIcon>
+              <DockIcon>P</DockIcon>
+              <DockIcon>P</DockIcon>
+              <DockIcon>A</DockIcon>
+              <DockIcon>I</DockIcon>
+            </Dock>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
