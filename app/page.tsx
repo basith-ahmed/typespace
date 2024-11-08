@@ -11,13 +11,14 @@ import {
   WholeWord,
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
-import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+// import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 
 import { motion, AnimatePresence } from "framer-motion";
 
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
 import { Dock, DockIcon } from "@/components/ui/dock";
+import AnimatedShinyText from "@/components/ui/animated-shiny-text";
 
 export default function ImprovedTypingSpeedTester() {
   const [gameState, setGameState] = useState<"typing" | "result">("typing");
@@ -356,7 +357,7 @@ export default function ImprovedTypingSpeedTester() {
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
         {gameState === "typing" && (
           <div className="flex flex-col w-full justify-center items-center">
-            <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
+            <div className=" w-full max-w-2xl flex flex-col items-center justify-center">
               {/* {startTime !== 0 && (
                 <div className="flex justify-center items-center mb-2 w-full">
                   {testMode === "time" ? (
@@ -373,7 +374,7 @@ export default function ImprovedTypingSpeedTester() {
               {/* Conditionally render Dock or Progress Bar based on startTime */}
               <motion.div
                 layout
-                className="mb-4 rounded-full flex justify-center"
+                className="rounded-full flex justify-center mb-4"
                 variants={variants}
                 initial={startTime !== 0 ? "small" : "dock"}
                 animate={startTime !== 0 ? "small" : "dock"}
@@ -424,7 +425,7 @@ export default function ImprovedTypingSpeedTester() {
                           <Button
                             className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
                               includePunctuation
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             size="sm"
@@ -442,7 +443,7 @@ export default function ImprovedTypingSpeedTester() {
                           <Button
                             className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
                               includeNumbers
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             size="sm"
@@ -458,14 +459,15 @@ export default function ImprovedTypingSpeedTester() {
 
                         <div
                           role="none"
-                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
                         ></div>
+
                         <DockIcon>
                           <Button
                             variant="ghost"
                             className={`w-10 h-10 flex items-center justify-center rounded-full ${
                               testMode === "time"
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             onClick={() => {
@@ -483,7 +485,7 @@ export default function ImprovedTypingSpeedTester() {
                             variant="ghost"
                             className={`w-10 h-10 flex items-center justify-center rounded-full ${
                               testMode === "words"
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             onClick={() => {
@@ -498,7 +500,7 @@ export default function ImprovedTypingSpeedTester() {
 
                         <div
                           role="none"
-                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
                         ></div>
 
                         <DockIcon className="mx-[4.5rem]">
@@ -509,7 +511,7 @@ export default function ImprovedTypingSpeedTester() {
                                   <button
                                     className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
                                       testDuration === duration
-                                        ? "bg-gray-500"
+                                        ? "bg-gray-400 hover:bg-gray-500"
                                         : "bg-gray-300 hover:bg-gray-400"
                                     } transition-colors`}
                                     onClick={() => {
@@ -529,7 +531,7 @@ export default function ImprovedTypingSpeedTester() {
                                   <button
                                     className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
                                       testWordCount === count
-                                        ? "bg-gray-500"
+                                        ? "bg-gray-400 hover:bg-gray-500"
                                         : "bg-gray-300 hover:bg-gray-400"
                                     } transition-colors`}
                                     onClick={() => {
@@ -547,14 +549,14 @@ export default function ImprovedTypingSpeedTester() {
 
                         <div
                           role="none"
-                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
                         ></div>
 
                         <DockIcon>
                           <Button
                             className={`w-10 h-10 flex items-center justify-center rounded-full ${
                               showPerformance
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             size="sm"
@@ -572,7 +574,7 @@ export default function ImprovedTypingSpeedTester() {
                           <Button
                             className={`w-10 h-10 flex items-center justify-center rounded-full ${
                               showCharacterAccuracyIndicator
-                                ? "bg-gray-500"
+                                ? "bg-gray-400 hover:bg-gray-500"
                                 : "bg-gray-300 hover:bg-gray-400"
                             } transition-colors`}
                             size="sm"
@@ -597,7 +599,7 @@ export default function ImprovedTypingSpeedTester() {
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
               ref={containerRef}
-              className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10"
+              className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10 my-6"
               style={{
                 background:
                   "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
@@ -622,7 +624,7 @@ export default function ImprovedTypingSpeedTester() {
                           : "text-red-500"
                         : index === wordIndex
                         ? "text-primary font-bold text-3xl"
-                        : "text-muted-foreground font-semibold text-xl"
+                        : "text-muted-foreground font-semibold text-lg"
                     }`}
                   >
                     <div className="inline-block">
@@ -759,19 +761,21 @@ export default function ImprovedTypingSpeedTester() {
       </div>
 
       {startTime === 0 && (
-        <a
-          className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10"
-          href="https://github.com/basith-ahmed/type-racer"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <AnimatedGradientText className="backdrop-blur-lg">
-            <div className="hover:underline text-sm flex justify-center items-center">
-              View on GitHub
+        <div className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10">
+          <a
+            className="group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+            href="https://github.com/basith-ahmed/type-racer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 shadow-sm rounded-full">
+              {/* <div className="hover:underline text-sm flex justify-center items-center"> */}
+              <span>View on GitHub</span>
               <Link2 className="w-4 h-4 ml-1" />
-            </div>
-          </AnimatedGradientText>
-        </a>
+              {/* </div> */}
+            </AnimatedShinyText>
+          </a>
+        </div>
       )}
     </div>
   );
