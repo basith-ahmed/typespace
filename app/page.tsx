@@ -5,17 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Calculator,
-  FileDigit,
   Link2,
   MessageSquareWarningIcon,
   Timer,
   WholeWord,
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
-import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+// import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+
+import { motion, AnimatePresence } from "framer-motion";
 
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
+import { Dock, DockIcon } from "@/components/ui/dock";
+import AnimatedShinyText from "@/components/ui/animated-shiny-text";
 
 export default function ImprovedTypingSpeedTester() {
   const [gameState, setGameState] = useState<"typing" | "result">("typing");
@@ -25,7 +28,7 @@ export default function ImprovedTypingSpeedTester() {
   const [correctWords, setCorrectWords] = useState(0);
   const [startTime, setStartTime] = useState(0);
   const [wpm, setWpm] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
+  const [accuracy, setAccuracy] = useState(0);
   const [testDuration, setTestDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState(testDuration);
   const [testWordCount, setTestWordCount] = useState(10);
@@ -47,7 +50,7 @@ export default function ImprovedTypingSpeedTester() {
   // toggle state variables
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
-    useState(true);
+    useState(false);
 
   // Refs to store the wpm and accuracy without causing re-renders
   const wpmRef = useRef(wpm);
@@ -279,7 +282,7 @@ export default function ImprovedTypingSpeedTester() {
     setCorrectWords(0);
     setStartTime(0);
     setWpm(0);
-    setAccuracy(100);
+    setAccuracy(0);
     if (testMode === "time") {
       setTimeLeft(testDuration);
     }
@@ -290,15 +293,15 @@ export default function ImprovedTypingSpeedTester() {
     generateWords(50);
   };
 
-  const handleDurationChange = (value: string) => {
-    const duration = parseInt(value);
+  const handleDurationChange = (value: number) => {
+    const duration = value;
     setTestDuration(duration);
     setTimeLeft(duration);
     resetGame();
   };
 
-  const handleWordCountChange = (value: string) => {
-    const wordCount = parseInt(value);
+  const handleWordCountChange = (value: number) => {
+    const wordCount = value;
     setTestWordCount(wordCount);
     resetGame();
   };
@@ -308,6 +311,38 @@ export default function ImprovedTypingSpeedTester() {
     const centerPosition = containerWidth / 2;
     const targetPosition = wordIndex * wordWidth + wordWidth / 2;
     return centerPosition - targetPosition;
+  };
+
+  // Animation
+  const variants = {
+    small: {
+      backgroundColor: "#171717",
+      width: "100%",
+      height: "16px",
+      overflow: "hidden",
+      transition: {
+        type: "spring",
+        stiffness: 700,
+        damping: 30,
+        backgroundColor: { duration: 0.3 },
+        height: { duration: 0.5, ease: "easeInOut" },
+        width: { duration: 0.5, ease: "easeInOut" },
+      },
+    },
+    dock: {
+      backgroundColor: "rgba(229, 231, 235)",
+      width: "490px",
+      height: "58px",
+      overflow: "visible",
+      transition: {
+        type: "spring",
+        stiffness: 700,
+        damping: 30,
+        backgroundColor: { duration: 0.3 },
+        height: { duration: 0.5, ease: "easeInOut" },
+        width: { duration: 0.5, ease: "easeInOut" },
+      },
+    },
   };
 
   return (
@@ -321,177 +356,266 @@ export default function ImprovedTypingSpeedTester() {
       />
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
         {gameState === "typing" && (
-          <>
-            <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
-              {/* Conditionally render Dock or Progress Bar based on startTime */}
-              {startTime === 0 ? (
-                // Dock: Visible before typing starts
-                <div className="w-fit flex items-center space-x-2 justify-center bg-gray-200 rounded-lg p-4">
-                  {/* Mode Selection Buttons */}
-                  <Button
-                    variant={testMode === "time" ? "default" : "outline"}
-                    onClick={() => {
-                      setTestMode("time");
-                      resetGame();
-                    }}
-                  >
-                    <Timer />
-                  </Button>
-                  <Button
-                    variant={testMode === "words" ? "default" : "outline"}
-                    onClick={() => {
-                      setTestMode("words");
-                      resetGame();
-                    }}
-                  >
-                    <WholeWord />
-                  </Button>
-
-                  {/* Duration or Word Count Selection Buttons */}
+          <div className="flex flex-col w-full justify-center items-center">
+            <div className=" w-full max-w-2xl flex flex-col items-center justify-center">
+              {/* {startTime !== 0 && (
+                <div className="flex justify-center items-center mb-2 w-full">
                   {testMode === "time" ? (
-                    <>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 15 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("15")}
-                      >
-                        15
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 30 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("30")}
-                      >
-                        30
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 60 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("60")}
-                      >
-                        60
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 120 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("120")}
-                      >
-                        120
-                      </Button>
-                    </>
+                    <div className="text-2xl font-bold">
+                      Time left: {timeLeft}s
+                    </div>
                   ) : (
-                    <>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 10 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("10")}
-                      >
-                        10
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 25 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("25")}
-                      >
-                        25
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 50 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("50")}
-                      >
-                        50
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 100 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("100")}
-                      >
-                        100
-                      </Button>
-                    </>
+                    <div className="text-2xl font-bold">
+                      Words left: {testWordCount - wordIndex}
+                    </div>
                   )}
-
-                  {/* Toggle Buttons */}
-                  <Button
-                    className="font-semibold"
-                    size="sm"
-                    variant={includePunctuation ? "default" : "outline"}
-                    onClick={() => {
-                      setIncludePunctuation(!includePunctuation);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    Aa!
-                  </Button>
-                  <Button
-                    className="font-semibold"
-                    size="sm"
-                    variant={includeNumbers ? "default" : "outline"}
-                    onClick={() => {
-                      setIncludeNumbers(!includeNumbers);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    123
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={showPerformance ? "default" : "outline"}
-                    onClick={() => {
-                      setShowPerformance(!showPerformance);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <Calculator />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={
-                      showCharacterAccuracyIndicator ? "default" : "outline"
-                    }
-                    onClick={() => {
-                      setShowCharacterAccuracyIndicator(
-                        !showCharacterAccuracyIndicator
-                      );
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <MessageSquareWarningIcon />
-                  </Button>
                 </div>
-              ) : (
-                <>
-                  <div className="flex justify-center items-center mb-2 w-full">
-                    {testMode === "time" ? (
-                      <div className="text-2xl font-bold">
-                        Time left: {timeLeft}s
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold">
-                        Words left: {testWordCount - wordIndex}
-                      </div>
-                    )}
-                  </div>
-                  {testMode === "time" ? (
-                    <Progress
-                      value={(timeLeft / testDuration) * 100}
+              )} */}
+              {/* Conditionally render Dock or Progress Bar based on startTime */}
+              <motion.div
+                layout
+                className="rounded-full flex justify-center mb-4"
+                variants={variants}
+                initial={startTime !== 0 ? "small" : "dock"}
+                animate={startTime !== 0 ? "small" : "dock"}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {startTime !== 0 ? (
+                    <motion.div
+                      key="small-div"
+                      initial={{ opacity: 0, height: "58px", width: "490px" }}
+                      animate={{ opacity: 1, height: "16px", width: "100%" }}
+                      exit={{ opacity: 0, height: "58px", width: "490px" }}
+                      transition={{
+                        opacity: { duration: 0.2 },
+                      }}
                       className="w-full"
-                    />
+                    >
+                      {startTime !== 0 && (
+                        <>
+                          {testMode === "time" ? (
+                            <Progress
+                              value={(timeLeft / testDuration) * 100}
+                              className="w-full"
+                            />
+                          ) : (
+                            <Progress
+                              value={100 - (wordIndex / testWordCount) * 100}
+                              className="w-full"
+                            />
+                          )}
+                        </>
+                      )}
+                    </motion.div>
                   ) : (
-                    <Progress
-                      value={100 - (wordIndex / testWordCount) * 100}
-                      className="w-full"
-                    />
+                    <motion.div
+                      key="dock"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1, height: "58px" }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        opacity: { duration: 0.2 },
+                      }}
+                    >
+                      <Dock
+                        direction="middle"
+                        className="rounded-full bg-gray-200"
+                      >
+                        <DockIcon>
+                          <Button
+                            className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
+                              includePunctuation
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setIncludePunctuation(!includePunctuation);
+                              inputRef.current?.focus();
+                            }}
+                            title={
+                              includePunctuation
+                                ? "Exclude punctuation"
+                                : "Include punctuation"
+                            }
+                          >
+                            Aa!
+                          </Button>
+                        </DockIcon>
+
+                        <DockIcon>
+                          <Button
+                            className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
+                              includeNumbers
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setIncludeNumbers(!includeNumbers);
+                              inputRef.current?.focus();
+                            }}
+                            title={
+                              includeNumbers
+                                ? "Exclude numbers"
+                                : "Include numbers"
+                            }
+                          >
+                            123
+                          </Button>
+                        </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
+                        ></div>
+
+                        <DockIcon>
+                          <Button
+                            variant="ghost"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              testMode === "time"
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            onClick={() => {
+                              setTestMode("time");
+                              resetGame();
+                              inputRef.current?.focus();
+                            }}
+                            title="Time mode"
+                          >
+                            <Timer />
+                          </Button>
+                        </DockIcon>
+
+                        <DockIcon>
+                          <Button
+                            variant="ghost"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              testMode === "words"
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            onClick={() => {
+                              setTestMode("words");
+                              resetGame();
+                              inputRef.current?.focus();
+                            }}
+                            title="Words mode"
+                          >
+                            <WholeWord />
+                          </Button>
+                        </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
+                        ></div>
+
+                        <DockIcon className="mx-[4.5rem]">
+                          {testMode === "time" ? (
+                            <>
+                              {[15, 30, 60, 120].map((duration) => (
+                                <div key={duration}>
+                                  <button
+                                    className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
+                                      testDuration === duration
+                                        ? "bg-gray-400 hover:bg-gray-500"
+                                        : "bg-gray-300 hover:bg-gray-400"
+                                    } transition-colors`}
+                                    onClick={() => {
+                                      handleDurationChange(duration);
+                                      inputRef.current?.focus();
+                                    }}
+                                    title={`Set test duration to ${duration} seconds`}
+                                  >
+                                    {duration}
+                                  </button>
+                                </div>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              {[10, 25, 50, 100].map((count) => (
+                                <div key={count}>
+                                  <button
+                                    className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
+                                      testWordCount === count
+                                        ? "bg-gray-400 hover:bg-gray-500"
+                                        : "bg-gray-300 hover:bg-gray-400"
+                                    } transition-colors`}
+                                    onClick={() => {
+                                      handleWordCountChange(count);
+                                      inputRef.current?.focus();
+                                    }}
+                                    title={`Set test word count to ${count}`}
+                                  >
+                                    {count}
+                                  </button>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                        </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-300 h-[90%] w-[2px] rounded-full"
+                        ></div>
+
+                        <DockIcon>
+                          <Button
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              showPerformance
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setShowPerformance(!showPerformance);
+                              inputRef.current?.focus();
+                            }}
+                            title="Toggle performance display"
+                          >
+                            <Calculator />
+                          </Button>
+                        </DockIcon>
+
+                        <DockIcon>
+                          <Button
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              showCharacterAccuracyIndicator
+                                ? "bg-gray-400 hover:bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setShowCharacterAccuracyIndicator(
+                                !showCharacterAccuracyIndicator
+                              );
+                              inputRef.current?.focus();
+                            }}
+                            title="Toggle character accuracy indicator"
+                          >
+                            <MessageSquareWarningIcon />
+                          </Button>
+                        </DockIcon>
+                      </Dock>
+                    </motion.div>
                   )}
-                </>
-              )}
+                </AnimatePresence>
+              </motion.div>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
               ref={containerRef}
-              className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10"
+              className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10 my-6"
               style={{
                 background:
                   "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
@@ -501,7 +625,7 @@ export default function ImprovedTypingSpeedTester() {
               <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
               <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
               <div
-                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg"
+                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold font-mono"
                 style={{
                   transform: `translateX(${calculateTranslateX()}px)`,
                 }}
@@ -515,8 +639,8 @@ export default function ImprovedTypingSpeedTester() {
                           ? "text-green-500"
                           : "text-red-500"
                         : index === wordIndex
-                        ? "text-primary font-bold text-2xl"
-                        : "text-muted-foreground text-lg"
+                        ? "text-primary font-bold text-3xl"
+                        : "text-muted-foreground font-semibold text-lg"
                     }`}
                   >
                     <div className="inline-block">
@@ -560,51 +684,71 @@ export default function ImprovedTypingSpeedTester() {
               </div>
             </div>
 
-            {/* Character Accuracy Indicators */}
-            {showCharacterAccuracyIndicator && startTime !== 0 && (
-              <div className="mb-4 text-center min-h-8">
-                {characterAccuracy.map((isCorrect, index) => (
-                  <span
-                    key={index}
-                    className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
-                      isCorrect ? "bg-green-500" : "bg-red-500"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Invisible Input Field */}
-            <input
-              ref={inputRef}
-              type="text"
-              value={userInput}
-              onChange={handleInputChange}
-              style={{ position: "absolute", left: "-9999px" }}
-              aria-label="Type the words shown above"
-            />
-
-            {/* Conditionally render WPM and Accuracy */}
-            {showPerformance && (
-              <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
-                <div>
-                  <div className="text-3xl font-bold text-primary">{wpm}</div>
-                  <div className="text-sm text-gray-600">WPM</div>
+            <div className="w-full flex flex-col justify-center items-center">
+              {/* Character Accuracy Indicators */}
+              {startTime !== 0 && (
+                <div className="mb-4 text-center min-h-8">
+                  {showCharacterAccuracyIndicator && (
+                    <>
+                      {characterAccuracy.map((isCorrect, index) => (
+                        <span
+                          key={index}
+                          className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                            isCorrect ? "bg-green-500" : "bg-red-500"
+                          }`}
+                        />
+                      ))}
+                    </>
+                  )}
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary">
-                    {accuracy}%
+              )}
+
+              {/* Invisible Input Field */}
+              <input
+                ref={inputRef}
+                type="text"
+                value={userInput}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "ArrowLeft" ||
+                    e.key === "ArrowRight" ||
+                    e.key === "ArrowUp" ||
+                    e.key === "ArrowDown"
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                style={{ position: "absolute", left: "-9999px" }}
+                aria-label="Type the words shown above"
+              />
+
+              {/* Conditionally render WPM and Accuracy */}
+              <div className=" text-center w-full max-w-2xl h-16 justify-center items-center flex">
+                {showPerformance && (
+                  <div className="flex flex-row gap-48 w-full items-center justify-center">
+                    <div>
+                      <div className="text-3xl font-bold text-primary">
+                        {wpm}
+                      </div>
+                      <div className="text-sm text-gray-600">WPM</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-primary">
+                        {accuracy}%
+                      </div>
+                      <div className="text-sm text-gray-600">Accuracy</div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600">Accuracy</div>
-                </div>
+                )}
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
         {gameState === "result" && (
           <>
-            <div className="text-center mb-6 w-full max-w-2xl">
-              <h2 className="text-3xl font-bold mb-4">Results</h2>
+            <div className="text-center mb-16 w-full max-w-2xl">
+              <h2 className="text-3xl font-bold mb-16">Results</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-4xl font-bold text-primary">{wpm}</p>
@@ -633,19 +777,21 @@ export default function ImprovedTypingSpeedTester() {
       </div>
 
       {startTime === 0 && (
-        <a
-          className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10"
-          href="https://github.com/basith-ahmed/type-racer"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <AnimatedGradientText className="backdrop-blur-lg">
-            <div className="hover:underline text-sm flex justify-center items-center">
-              View on GitHub
-              <Link2 className="w-4 h-4 ml-1" />
-            </div>
-          </AnimatedGradientText>
-        </a>
+        <div className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10">
+          <a
+            className="group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+            href="https://github.com/basith-ahmed/type-racer"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 shadow-sm rounded-full">
+              {/* <div className="hover:underline text-sm flex justify-center items-center"> */}
+              <span>View on GitHub</span>
+              {/* <Link2 className="w-4 h-4 ml-1" /> */}
+              {/* </div> */}
+            </AnimatedShinyText>
+          </a>
+        </div>
       )}
     </div>
   );
