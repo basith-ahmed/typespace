@@ -48,7 +48,7 @@ export default function ImprovedTypingSpeedTester() {
   // toggle state variables
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
-    useState(true);
+    useState(false);
 
   // Refs to store the wpm and accuracy without causing re-renders
   const wpmRef = useRef(wpm);
