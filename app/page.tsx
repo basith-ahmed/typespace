@@ -3,7 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Calculator, FileDigit, Link2, MessageSquareWarningIcon, Timer, WholeWord } from "lucide-react";
+import {
+  Calculator,
+  FileDigit,
+  Link2,
+  MessageSquareWarningIcon,
+  Timer,
+  WholeWord,
+} from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 
@@ -37,7 +44,7 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // toogle state variables
+  // toggle state variables
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
     useState(true);
@@ -318,7 +325,6 @@ export default function ImprovedTypingSpeedTester() {
         {gameState === "typing" && (
           <>
             <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
-
               {/* Conditionally render Dock or Progress Bar based on startTime */}
               {startTime === 0 ? (
                 // Dock: Visible before typing starts
@@ -531,7 +537,11 @@ export default function ImprovedTypingSpeedTester() {
                             return (
                               <span
                                 key={charIndex}
-                                className={`inline-block ${className}`}
+                                className={`inline-block ${className} ${
+                                  charIndex === userInput.length
+                                    ? "bg-gray-200 rounded"
+                                    : ""
+                                }`}
                               >
                                 {char}
                               </span>
