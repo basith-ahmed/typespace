@@ -3,14 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Link2 } from "lucide-react";
+import { Calculator, FileDigit, Link2, MessageSquareWarningIcon, Timer, WholeWord } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 
@@ -325,7 +318,7 @@ export default function ImprovedTypingSpeedTester() {
         {gameState === "typing" && (
           <>
             <div className="mb-4 w-full max-w-2xl">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-center items-center mb-2 w-full">
                 {testMode === "time" ? (
                   <div className="text-2xl font-bold">
                     Time left: {timeLeft}s
@@ -335,57 +328,153 @@ export default function ImprovedTypingSpeedTester() {
                     Words left: {testWordCount - wordIndex}
                   </div>
                 )}
-                <div className="flex space-x-2">
-                  {/* Mode Selector */}
-                  <Select
-                    value={testMode}
-                    onValueChange={(value) => {
-                      setTestMode(value as "time" | "words");
-                      resetGame();
-                    }}
-                  >
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue placeholder="Select mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="time">Time Mode</SelectItem>
-                      <SelectItem value="words">Word Mode</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {testMode === "time" ? (
-                    <Select
-                      value={testDuration.toString()}
-                      onValueChange={handleDurationChange}
-                    >
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Select duration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="15">15 seconds</SelectItem>
-                        <SelectItem value="30">30 seconds</SelectItem>
-                        <SelectItem value="60">60 seconds</SelectItem>
-                        <SelectItem value="120">120 seconds</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Select
-                      value={testWordCount.toString()}
-                      onValueChange={handleWordCountChange}
-                    >
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Select word count" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="10">10 words</SelectItem>
-                        <SelectItem value="25">25 words</SelectItem>
-                        <SelectItem value="50">50 words</SelectItem>
-                        <SelectItem value="100">100 words</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
               </div>
+
+              {/* Dock div containing mode selection, duration/word count buttons, and toggles */}
+              <div className="mb-4 w-full max-w-2xl flex items-center space-x-2 overflow-x-auto justify-center bg-gray-200 rounded-lg p-4">
+                {/* Mode Selection Buttons */}
+                <Button
+                  variant={testMode === "time" ? "default" : "outline"}
+                  onClick={() => {
+                    setTestMode("time");
+                    resetGame();
+                  }}
+                >
+                  <Timer />
+                </Button>
+                <Button
+                  variant={testMode === "words" ? "default" : "outline"}
+                  onClick={() => {
+                    setTestMode("words");
+                    resetGame();
+                  }}
+                >
+                  <WholeWord />
+                </Button>
+
+                {/* Duration or Word Count Selection Buttons */}
+                {testMode === "time" ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant={testDuration === 15 ? "default" : "outline"}
+                      onClick={() => handleDurationChange("15")}
+                    >
+                      15
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testDuration === 30 ? "default" : "outline"}
+                      onClick={() => handleDurationChange("30")}
+                    >
+                      30
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testDuration === 60 ? "default" : "outline"}
+                      onClick={() => handleDurationChange("60")}
+                    >
+                      60
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testDuration === 120 ? "default" : "outline"}
+                      onClick={() => handleDurationChange("120")}
+                    >
+                      120
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant={testWordCount === 10 ? "default" : "outline"}
+                      onClick={() => handleWordCountChange("10")}
+                    >
+                      10
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testWordCount === 25 ? "default" : "outline"}
+                      onClick={() => handleWordCountChange("25")}
+                    >
+                      25
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testWordCount === 50 ? "default" : "outline"}
+                      onClick={() => handleWordCountChange("50")}
+                    >
+                      50
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={testWordCount === 100 ? "default" : "outline"}
+                      onClick={() => handleWordCountChange("100")}
+                    >
+                      100
+                    </Button>
+                  </>
+                )}
+
+                {/* Toggle Buttons */}
+                <Button
+                  size="sm"
+                  variant={includePunctuation ? "default" : "outline"}
+                  onClick={() => {
+                    setIncludePunctuation(!includePunctuation);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {/* {includePunctuation
+                    ? "Disable Punctuation"
+                    : "Enable Punctuation"} */}
+                  Aa!
+                </Button>
+                <Button
+                  size="sm"
+                  variant={includeNumbers ? "default" : "outline"}
+                  onClick={() => {
+                    setIncludeNumbers(!includeNumbers);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {/* {includeNumbers ? "Disable Numbers" : "Enable Numbers"} */}
+                  <FileDigit />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={showPerformance ? "default" : "outline"}
+                  onClick={() => {
+                    setShowPerformance(!showPerformance);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {/* {showPerformance
+                    ? "Hide WPM & Accuracy"
+                    : "Show WPM & Accuracy"} */}
+                  <Calculator />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={
+                    showCharacterAccuracyIndicator ? "default" : "outline"
+                  }
+                  onClick={() => {
+                    setShowCharacterAccuracyIndicator(
+                      !showCharacterAccuracyIndicator
+                    );
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {/* {showCharacterAccuracyIndicator
+                    ? "Hide Character Accuracy"
+                    : "Show Character Accuracy"} */}
+                    <MessageSquareWarningIcon />
+                </Button>
+              </div>
+
+              {/* Progress Bar */}
               {testMode === "time" ? (
                 <Progress
                   value={(timeLeft / testDuration) * 100}
@@ -397,50 +486,6 @@ export default function ImprovedTypingSpeedTester() {
                   className="w-full"
                 />
               )}
-            </div>
-
-            {/* Options for Punctuation, Numbers, and Performance Display */}
-            <div className="mb-4 w-full max-w-2xl flex justify-center space-x-4">
-              <Button
-                variant={includePunctuation ? "default" : "outline"}
-                onClick={() => {
-                  setIncludePunctuation(!includePunctuation);
-                  inputRef.current?.focus();
-                }}
-              >
-                {includePunctuation ? "Disable" : "Enable"} Punctuation
-              </Button>
-              <Button
-                variant={includeNumbers ? "default" : "outline"}
-                onClick={() => {
-                  setIncludeNumbers(!includeNumbers);
-                  inputRef.current?.focus();
-                }}
-              >
-                {includeNumbers ? "Disable" : "Enable"} Numbers
-              </Button>
-              <Button
-                variant={showPerformance ? "default" : "outline"}
-                onClick={() => {
-                  setShowPerformance(!showPerformance);
-                  inputRef.current?.focus();
-                }}
-              >
-                {showPerformance ? "Hide" : "Show"} WPM & Accuracy
-              </Button>
-              {/* Button to toggle character accuracy indicator */}
-              <Button
-                variant={showCharacterAccuracyIndicator ? "default" : "outline"}
-                onClick={() => {
-                  setShowCharacterAccuracyIndicator(
-                    !showCharacterAccuracyIndicator
-                  );
-                  inputRef.current?.focus();
-                }}
-              >
-                {showCharacterAccuracyIndicator ? "Hide" : "Show"} Character
-                Accuracy
-              </Button>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
