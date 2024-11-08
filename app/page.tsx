@@ -317,7 +317,7 @@ export default function ImprovedTypingSpeedTester() {
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
         {gameState === "typing" && (
           <>
-            <div className="mb-4 w-full max-w-2xl">
+            <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
               <div className="flex justify-center items-center mb-2 w-full">
                 {testMode === "time" ? (
                   <div className="text-2xl font-bold">
@@ -331,7 +331,7 @@ export default function ImprovedTypingSpeedTester() {
               </div>
 
               {/* Dock div containing mode selection, duration/word count buttons, and toggles */}
-              <div className="mb-4 w-full max-w-2xl flex items-center space-x-2 overflow-x-auto justify-center bg-gray-200 rounded-lg p-4">
+              <div className="mb-4 w-fit flex items-center space-x-2 justify-center bg-gray-200 rounded-lg p-4">
                 {/* Mode Selection Buttons */}
                 <Button
                   variant={testMode === "time" ? "default" : "outline"}
@@ -419,6 +419,7 @@ export default function ImprovedTypingSpeedTester() {
 
                 {/* Toggle Buttons */}
                 <Button
+                  className="font-semibold"
                   size="sm"
                   variant={includePunctuation ? "default" : "outline"}
                   onClick={() => {
@@ -432,6 +433,7 @@ export default function ImprovedTypingSpeedTester() {
                   Aa!
                 </Button>
                 <Button
+                  className="font-semibold"
                   size="sm"
                   variant={includeNumbers ? "default" : "outline"}
                   onClick={() => {
@@ -440,7 +442,8 @@ export default function ImprovedTypingSpeedTester() {
                   }}
                 >
                   {/* {includeNumbers ? "Disable Numbers" : "Enable Numbers"} */}
-                  <FileDigit />
+                  {/* <FileDigit /> */}
+                  123
                 </Button>
                 <Button
                   size="sm"
@@ -470,7 +473,7 @@ export default function ImprovedTypingSpeedTester() {
                   {/* {showCharacterAccuracyIndicator
                     ? "Hide Character Accuracy"
                     : "Show Character Accuracy"} */}
-                    <MessageSquareWarningIcon />
+                  <MessageSquareWarningIcon />
                 </Button>
               </div>
 
@@ -498,8 +501,8 @@ export default function ImprovedTypingSpeedTester() {
               }}
               onClick={() => inputRef.current?.focus()}
             >
-              <div className="absolute left-0 h-full w-[20px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
-              <div className="absolute right-0 h-full w-[20px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
+              <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
+              <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
               <div
                 className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg"
                 style={{
@@ -519,7 +522,7 @@ export default function ImprovedTypingSpeedTester() {
                         : "text-muted-foreground text-lg"
                     }`}
                   >
-                    <div className="relative inline-block">
+                    <div className="inline-block">
                       {index === wordIndex
                         ? word.split("").map((char, charIndex) => {
                             const isCorrect =
@@ -542,21 +545,6 @@ export default function ImprovedTypingSpeedTester() {
                             );
                           })
                         : word}
-                      {/* Overlay Cursor */}
-                      {index === wordIndex && (
-                        <span
-                          className="absolute top-0 h-full bg-black animate-pulse"
-                          style={{
-                            left: `${
-                              (userInput.length /
-                                currentWords[wordIndex].length) *
-                              100
-                            }%`,
-                            width: "2px",
-                            transition: "left 0.01s linear",
-                          }}
-                        />
-                      )}
                     </div>
                   </span>
                 ))}
