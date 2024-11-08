@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Calculator,
-  FileDigit,
   Link2,
   MessageSquareWarningIcon,
   Timer,
@@ -13,6 +12,8 @@ import {
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+
+import { motion, AnimatePresence } from "framer-motion";
 
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
@@ -25,7 +26,7 @@ export default function ImprovedTypingSpeedTester() {
   const [correctWords, setCorrectWords] = useState(0);
   const [startTime, setStartTime] = useState(0);
   const [wpm, setWpm] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
+  const [accuracy, setAccuracy] = useState(0);
   const [testDuration, setTestDuration] = useState(15);
   const [timeLeft, setTimeLeft] = useState(testDuration);
   const [testWordCount, setTestWordCount] = useState(10);
@@ -279,7 +280,7 @@ export default function ImprovedTypingSpeedTester() {
     setCorrectWords(0);
     setStartTime(0);
     setWpm(0);
-    setAccuracy(100);
+    setAccuracy(0);
     if (testMode === "time") {
       setTimeLeft(testDuration);
     }
@@ -323,169 +324,224 @@ export default function ImprovedTypingSpeedTester() {
         {gameState === "typing" && (
           <>
             <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
-              {/* Conditionally render Dock or Progress Bar based on startTime */}
-              {startTime === 0 ? (
-                // Dock: Visible before typing starts
-                <div className="w-fit flex items-center space-x-2 justify-center bg-gray-200 rounded-lg p-4">
-                  {/* Mode Selection Buttons */}
-                  <Button
-                    variant={testMode === "time" ? "default" : "outline"}
-                    onClick={() => {
-                      setTestMode("time");
-                      resetGame();
-                    }}
-                  >
-                    <Timer />
-                  </Button>
-                  <Button
-                    variant={testMode === "words" ? "default" : "outline"}
-                    onClick={() => {
-                      setTestMode("words");
-                      resetGame();
-                    }}
-                  >
-                    <WholeWord />
-                  </Button>
-
-                  {/* Duration or Word Count Selection Buttons */}
+              {/* {startTime !== 0 && (
+                <div className="flex justify-center items-center mb-2 w-full">
                   {testMode === "time" ? (
-                    <>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 15 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("15")}
-                      >
-                        15
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 30 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("30")}
-                      >
-                        30
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 60 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("60")}
-                      >
-                        60
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testDuration === 120 ? "default" : "outline"}
-                        onClick={() => handleDurationChange("120")}
-                      >
-                        120
-                      </Button>
-                    </>
+                    <div className="text-2xl font-bold">
+                      Time left: {timeLeft}s
+                    </div>
                   ) : (
-                    <>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 10 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("10")}
-                      >
-                        10
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 25 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("25")}
-                      >
-                        25
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 50 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("50")}
-                      >
-                        50
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={testWordCount === 100 ? "default" : "outline"}
-                        onClick={() => handleWordCountChange("100")}
-                      >
-                        100
-                      </Button>
-                    </>
+                    <div className="text-2xl font-bold">
+                      Words left: {testWordCount - wordIndex}
+                    </div>
                   )}
-
-                  {/* Toggle Buttons */}
-                  <Button
-                    className="font-semibold"
-                    size="sm"
-                    variant={includePunctuation ? "default" : "outline"}
-                    onClick={() => {
-                      setIncludePunctuation(!includePunctuation);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    Aa!
-                  </Button>
-                  <Button
-                    className="font-semibold"
-                    size="sm"
-                    variant={includeNumbers ? "default" : "outline"}
-                    onClick={() => {
-                      setIncludeNumbers(!includeNumbers);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    123
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={showPerformance ? "default" : "outline"}
-                    onClick={() => {
-                      setShowPerformance(!showPerformance);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <Calculator />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={
-                      showCharacterAccuracyIndicator ? "default" : "outline"
-                    }
-                    onClick={() => {
-                      setShowCharacterAccuracyIndicator(
-                        !showCharacterAccuracyIndicator
-                      );
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <MessageSquareWarningIcon />
-                  </Button>
                 </div>
-              ) : (
-                <>
-                  <div className="flex justify-center items-center mb-2 w-full">
-                    {testMode === "time" ? (
-                      <div className="text-2xl font-bold">
-                        Time left: {timeLeft}s
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold">
-                        Words left: {testWordCount - wordIndex}
-                      </div>
-                    )}
-                  </div>
-                  {testMode === "time" ? (
-                    <Progress
-                      value={(timeLeft / testDuration) * 100}
+              )} */}
+              {/* Conditionally render Dock or Progress Bar based on startTime */}
+              <motion.div
+                layout
+                className="mb-4 overflow-hidden rounded-lg w-full flex justify-center"
+                animate={{
+                  backgroundColor: startTime !== 0 ? "#171717" : "#e5e7eb",
+                  width: startTime !== 0 ? "100%" : "552.02px",
+                }}
+                transition={{
+                  layout: { type: "spring", stiffness: 700, damping: 30 },
+                  backgroundColor: { duration: 0.3 },
+                }}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {startTime !== 0 ? (
+                    <motion.div
+                      key="small-div"
+                      initial={{ opacity: 0, height: "16px" }}
+                      animate={{ opacity: 1, height: "16px" }}
+                      exit={{ opacity: 0, height: "72px" }}
+                      transition={{
+                        opacity: { duration: 0.2 },
+                        height: { duration: 0.5, ease: "easeInOut" },
+                      }}
                       className="w-full"
-                    />
+                    >
+                      {testMode === "time" ? (
+                        <Progress
+                          value={(timeLeft / testDuration) * 100}
+                          className="w-full"
+                        />
+                      ) : (
+                        <Progress
+                          value={100 - (wordIndex / testWordCount) * 100}
+                          className="w-full"
+                        />
+                      )}
+                    </motion.div>
                   ) : (
-                    <Progress
-                      value={100 - (wordIndex / testWordCount) * 100}
-                      className="w-full"
-                    />
+                    <motion.div
+                      key="dock"
+                      initial={{ opacity: 0, height: "72px" }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: "16px" }}
+                      transition={{
+                        opacity: { duration: 0.2 },
+                        height: { duration: 0.4, ease: "easeInOut" },
+                      }}
+                    >
+                      <div className="w-fit flex items-center space-x-2 justify-center bg-gray-200 rounded-lg p-4">
+                        {/* Mode Selection Buttons */}
+                        <Button
+                          variant={testMode === "time" ? "default" : "outline"}
+                          onClick={() => {
+                            setTestMode("time");
+                            resetGame();
+                          }}
+                        >
+                          <Timer />
+                        </Button>
+                        <Button
+                          variant={testMode === "words" ? "default" : "outline"}
+                          onClick={() => {
+                            setTestMode("words");
+                            resetGame();
+                          }}
+                        >
+                          <WholeWord />
+                        </Button>
+
+                        {/* Duration or Word Count Selection Buttons */}
+                        {testMode === "time" ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant={
+                                testDuration === 15 ? "default" : "outline"
+                              }
+                              onClick={() => handleDurationChange("15")}
+                            >
+                              15
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testDuration === 30 ? "default" : "outline"
+                              }
+                              onClick={() => handleDurationChange("30")}
+                            >
+                              30
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testDuration === 60 ? "default" : "outline"
+                              }
+                              onClick={() => handleDurationChange("60")}
+                            >
+                              60
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testDuration === 120 ? "default" : "outline"
+                              }
+                              onClick={() => handleDurationChange("120")}
+                            >
+                              120
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              variant={
+                                testWordCount === 10 ? "default" : "outline"
+                              }
+                              onClick={() => handleWordCountChange("10")}
+                            >
+                              10
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testWordCount === 25 ? "default" : "outline"
+                              }
+                              onClick={() => handleWordCountChange("25")}
+                            >
+                              25
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testWordCount === 50 ? "default" : "outline"
+                              }
+                              onClick={() => handleWordCountChange("50")}
+                            >
+                              50
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={
+                                testWordCount === 100 ? "default" : "outline"
+                              }
+                              onClick={() => handleWordCountChange("100")}
+                            >
+                              100
+                            </Button>
+                          </>
+                        )}
+
+                        {/* Toggle Buttons */}
+                        <Button
+                          className="font-semibold"
+                          size="sm"
+                          variant={includePunctuation ? "default" : "outline"}
+                          onClick={() => {
+                            setIncludePunctuation(!includePunctuation);
+                            inputRef.current?.focus();
+                          }}
+                        >
+                          Aa!
+                        </Button>
+                        <Button
+                          className="font-semibold"
+                          size="sm"
+                          variant={includeNumbers ? "default" : "outline"}
+                          onClick={() => {
+                            setIncludeNumbers(!includeNumbers);
+                            inputRef.current?.focus();
+                          }}
+                        >
+                          123
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={showPerformance ? "default" : "outline"}
+                          onClick={() => {
+                            setShowPerformance(!showPerformance);
+                            inputRef.current?.focus();
+                          }}
+                        >
+                          <Calculator />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={
+                            showCharacterAccuracyIndicator
+                              ? "default"
+                              : "outline"
+                          }
+                          onClick={() => {
+                            setShowCharacterAccuracyIndicator(
+                              !showCharacterAccuracyIndicator
+                            );
+                            inputRef.current?.focus();
+                          }}
+                        >
+                          <MessageSquareWarningIcon />
+                        </Button>
+                      </div>
+                    </motion.div>
                   )}
-                </>
-              )}
+                </AnimatePresence>
+              </motion.div>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
@@ -561,16 +617,20 @@ export default function ImprovedTypingSpeedTester() {
             </div>
 
             {/* Character Accuracy Indicators */}
-            {showCharacterAccuracyIndicator && startTime !== 0 && (
+            {startTime !== 0 && (
               <div className="mb-4 text-center min-h-8">
-                {characterAccuracy.map((isCorrect, index) => (
-                  <span
-                    key={index}
-                    className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
-                      isCorrect ? "bg-green-500" : "bg-red-500"
-                    }`}
-                  />
-                ))}
+                {showCharacterAccuracyIndicator && (
+                  <>
+                    {characterAccuracy.map((isCorrect, index) => (
+                      <span
+                        key={index}
+                        className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                          isCorrect ? "bg-green-500" : "bg-red-500"
+                        }`}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
             )}
 
@@ -585,20 +645,22 @@ export default function ImprovedTypingSpeedTester() {
             />
 
             {/* Conditionally render WPM and Accuracy */}
-            {showPerformance && (
-              <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl">
-                <div>
-                  <div className="text-3xl font-bold text-primary">{wpm}</div>
-                  <div className="text-sm text-gray-600">WPM</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary">
-                    {accuracy}%
+            <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl h-16">
+              {showPerformance && (
+                <>
+                  <div>
+                    <div className="text-3xl font-bold text-primary">{wpm}</div>
+                    <div className="text-sm text-gray-600">WPM</div>
                   </div>
-                  <div className="text-sm text-gray-600">Accuracy</div>
-                </div>
-              </div>
-            )}
+                  <div>
+                    <div className="text-3xl font-bold text-primary">
+                      {accuracy}%
+                    </div>
+                    <div className="text-sm text-gray-600">Accuracy</div>
+                  </div>
+                </>
+              )}
+            </div>
           </>
         )}
         {gameState === "result" && (
