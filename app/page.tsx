@@ -355,7 +355,7 @@ export default function ImprovedTypingSpeedTester() {
       />
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
         {gameState === "typing" && (
-          <>
+          <div className="flex flex-col w-full justify-center items-center">
             <div className="mb-4 w-full max-w-2xl flex flex-col items-center justify-center">
               {/* {startTime !== 0 && (
                 <div className="flex justify-center items-center mb-2 w-full">
@@ -607,7 +607,7 @@ export default function ImprovedTypingSpeedTester() {
               <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
               <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
               <div
-                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold"
+                className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold font-mono"
                 style={{
                   transform: `translateX(${calculateTranslateX()}px)`,
                 }}
@@ -666,62 +666,66 @@ export default function ImprovedTypingSpeedTester() {
               </div>
             </div>
 
-            {/* Character Accuracy Indicators */}
-            {startTime !== 0 && (
-              <div className="mb-4 text-center min-h-8">
-                {showCharacterAccuracyIndicator && (
-                  <>
-                    {characterAccuracy.map((isCorrect, index) => (
-                      <span
-                        key={index}
-                        className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
-                          isCorrect ? "bg-green-500" : "bg-red-500"
-                        }`}
-                      />
-                    ))}
-                  </>
+            <div className="w-full flex flex-col justify-center items-center">
+              {/* Character Accuracy Indicators */}
+              {startTime !== 0 && (
+                <div className="mb-4 text-center min-h-8">
+                  {showCharacterAccuracyIndicator && (
+                    <>
+                      {characterAccuracy.map((isCorrect, index) => (
+                        <span
+                          key={index}
+                          className={`inline-block w-4 h-4 mx-0.5 rounded-full ${
+                            isCorrect ? "bg-green-500" : "bg-red-500"
+                          }`}
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Invisible Input Field */}
+              <input
+                ref={inputRef}
+                type="text"
+                value={userInput}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "ArrowLeft" ||
+                    e.key === "ArrowRight" ||
+                    e.key === "ArrowUp" ||
+                    e.key === "ArrowDown"
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                style={{ position: "absolute", left: "-9999px" }}
+                aria-label="Type the words shown above"
+              />
+
+              {/* Conditionally render WPM and Accuracy */}
+              <div className=" text-center w-full max-w-2xl h-16 justify-center items-center flex">
+                {showPerformance && (
+                  <div className="flex flex-row gap-48 w-full items-center justify-center">
+                    <div>
+                      <div className="text-3xl font-bold text-primary">
+                        {wpm}
+                      </div>
+                      <div className="text-sm text-gray-600">WPM</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-primary">
+                        {accuracy}%
+                      </div>
+                      <div className="text-sm text-gray-600">Accuracy</div>
+                    </div>
+                  </div>
                 )}
               </div>
-            )}
-
-            {/* Invisible Input Field */}
-            <input
-              ref={inputRef}
-              type="text"
-              value={userInput}
-              onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "ArrowLeft" ||
-                  e.key === "ArrowRight" ||
-                  e.key === "ArrowUp" ||
-                  e.key === "ArrowDown"
-                ) {
-                  e.preventDefault();
-                }
-              }}
-              style={{ position: "absolute", left: "-9999px" }}
-              aria-label="Type the words shown above"
-            />
-
-            {/* Conditionally render WPM and Accuracy */}
-            <div className="grid grid-cols-2 gap-4 text-center w-full max-w-2xl h-16">
-              {showPerformance && (
-                <>
-                  <div>
-                    <div className="text-3xl font-bold text-primary">{wpm}</div>
-                    <div className="text-sm text-gray-600">WPM</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-primary">
-                      {accuracy}%
-                    </div>
-                    <div className="text-sm text-gray-600">Accuracy</div>
-                  </div>
-                </>
-              )}
             </div>
-          </>
+          </div>
         )}
         {gameState === "result" && (
           <>
