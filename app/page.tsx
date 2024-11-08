@@ -434,6 +434,11 @@ export default function ImprovedTypingSpeedTester() {
                               setIncludePunctuation(!includePunctuation);
                               inputRef.current?.focus();
                             }}
+                            title={
+                              includePunctuation
+                                ? "Exclude punctuation"
+                                : "Include punctuation"
+                            }
                           >
                             Aa!
                           </Button>
@@ -452,6 +457,11 @@ export default function ImprovedTypingSpeedTester() {
                               setIncludeNumbers(!includeNumbers);
                               inputRef.current?.focus();
                             }}
+                            title={
+                              includeNumbers
+                                ? "Exclude numbers"
+                                : "Include numbers"
+                            }
                           >
                             123
                           </Button>
@@ -475,6 +485,7 @@ export default function ImprovedTypingSpeedTester() {
                               resetGame();
                               inputRef.current?.focus();
                             }}
+                            title="Time mode"
                           >
                             <Timer />
                           </Button>
@@ -493,6 +504,7 @@ export default function ImprovedTypingSpeedTester() {
                               resetGame();
                               inputRef.current?.focus();
                             }}
+                            title="Words mode"
                           >
                             <WholeWord />
                           </Button>
@@ -518,6 +530,7 @@ export default function ImprovedTypingSpeedTester() {
                                       handleDurationChange(duration);
                                       inputRef.current?.focus();
                                     }}
+                                    title={`Set test duration to ${duration} seconds`}
                                   >
                                     {duration}
                                   </button>
@@ -538,6 +551,7 @@ export default function ImprovedTypingSpeedTester() {
                                       handleWordCountChange(count);
                                       inputRef.current?.focus();
                                     }}
+                                    title={`Set test word count to ${count}`}
                                   >
                                     {count}
                                   </button>
@@ -565,6 +579,7 @@ export default function ImprovedTypingSpeedTester() {
                               setShowPerformance(!showPerformance);
                               inputRef.current?.focus();
                             }}
+                            title="Toggle performance display"
                           >
                             <Calculator />
                           </Button>
@@ -585,6 +600,7 @@ export default function ImprovedTypingSpeedTester() {
                               );
                               inputRef.current?.focus();
                             }}
+                            title="Toggle character accuracy indicator"
                           >
                             <MessageSquareWarningIcon />
                           </Button>
@@ -771,7 +787,7 @@ export default function ImprovedTypingSpeedTester() {
             <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 shadow-sm rounded-full">
               {/* <div className="hover:underline text-sm flex justify-center items-center"> */}
               <span>View on GitHub</span>
-              <Link2 className="w-4 h-4 ml-1" />
+              {/* <Link2 className="w-4 h-4 ml-1" /> */}
               {/* </div> */}
             </AnimatedShinyText>
           </a>
