@@ -665,8 +665,8 @@ export default function ImprovedTypingSpeedTester() {
         )}
         {gameState === "result" && (
           <>
-            <div className="text-center mb-6 w-full max-w-2xl">
-              <h2 className="text-3xl font-bold mb-4">Results</h2>
+            <div className="text-center mb-16 w-full max-w-2xl">
+              <h2 className="text-3xl font-bold mb-16">Results</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-4xl font-bold text-primary">{wpm}</p>
