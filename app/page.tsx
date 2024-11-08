@@ -387,169 +387,203 @@ export default function ImprovedTypingSpeedTester() {
                         height: { duration: 0.4, ease: "easeInOut" },
                       }}
                     >
-                      <div className="w-fit flex items-center space-x-2 justify-center bg-gray-200 rounded-lg p-4">
+                      <Dock direction="middle" className="h-8 mb-6">
                         {/* Mode Selection Buttons */}
-                        <Button
-                          variant={testMode === "time" ? "default" : "outline"}
-                          onClick={() => {
-                            setTestMode("time");
-                            resetGame();
-                          }}
-                        >
-                          <Timer />
-                        </Button>
-                        <Button
-                          variant={testMode === "words" ? "default" : "outline"}
-                          onClick={() => {
-                            setTestMode("words");
-                            resetGame();
-                          }}
-                        >
-                          <WholeWord />
-                        </Button>
+                        <DockIcon>
+                          <Button
+                            variant={
+                              testMode === "time" ? "default" : "outline"
+                            }
+                            onClick={() => {
+                              setTestMode("time");
+                              resetGame();
+                            }}
+                          >
+                            <Timer />
+                          </Button>
+                        </DockIcon>
+                        <DockIcon>
+                          <Button
+                            variant={
+                              testMode === "words" ? "default" : "outline"
+                            }
+                            onClick={() => {
+                              setTestMode("words");
+                              resetGame();
+                            }}
+                          >
+                            <WholeWord />
+                          </Button>
+                        </DockIcon>
 
                         {/* Duration or Word Count Selection Buttons */}
                         {testMode === "time" ? (
                           <>
-                            <Button
-                              size="sm"
-                              variant={
-                                testDuration === 15 ? "default" : "outline"
-                              }
-                              onClick={() => handleDurationChange("15")}
-                            >
-                              15
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testDuration === 30 ? "default" : "outline"
-                              }
-                              onClick={() => handleDurationChange("30")}
-                            >
-                              30
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testDuration === 60 ? "default" : "outline"
-                              }
-                              onClick={() => handleDurationChange("60")}
-                            >
-                              60
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testDuration === 120 ? "default" : "outline"
-                              }
-                              onClick={() => handleDurationChange("120")}
-                            >
-                              120
-                            </Button>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testDuration === 15 ? "default" : "outline"
+                                }
+                                onClick={() => handleDurationChange("15")}
+                              >
+                                15
+                              </Button>
+                            </DockIcon>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testDuration === 30 ? "default" : "outline"
+                                }
+                                onClick={() => handleDurationChange("30")}
+                              >
+                                30
+                              </Button>
+                            </DockIcon>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testDuration === 60 ? "default" : "outline"
+                                }
+                                onClick={() => handleDurationChange("60")}
+                              >
+                                60
+                              </Button>
+                            </DockIcon>
+
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testDuration === 120 ? "default" : "outline"
+                                }
+                                onClick={() => handleDurationChange("120")}
+                              >
+                                120
+                              </Button>
+                            </DockIcon>
                           </>
                         ) : (
                           <>
-                            <Button
-                              size="sm"
-                              variant={
-                                testWordCount === 10 ? "default" : "outline"
-                              }
-                              onClick={() => handleWordCountChange("10")}
-                            >
-                              10
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testWordCount === 25 ? "default" : "outline"
-                              }
-                              onClick={() => handleWordCountChange("25")}
-                            >
-                              25
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testWordCount === 50 ? "default" : "outline"
-                              }
-                              onClick={() => handleWordCountChange("50")}
-                            >
-                              50
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={
-                                testWordCount === 100 ? "default" : "outline"
-                              }
-                              onClick={() => handleWordCountChange("100")}
-                            >
-                              100
-                            </Button>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testWordCount === 10 ? "default" : "outline"
+                                }
+                                onClick={() => handleWordCountChange("10")}
+                              >
+                                10
+                              </Button>
+                            </DockIcon>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testWordCount === 25 ? "default" : "outline"
+                                }
+                                onClick={() => handleWordCountChange("25")}
+                              >
+                                25
+                              </Button>
+                            </DockIcon>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testWordCount === 50 ? "default" : "outline"
+                                }
+                                onClick={() => handleWordCountChange("50")}
+                              >
+                                50
+                              </Button>
+                            </DockIcon>
+                            <DockIcon>
+                              <Button
+                                size="sm"
+                                variant={
+                                  testWordCount === 100 ? "default" : "outline"
+                                }
+                                onClick={() => handleWordCountChange("100")}
+                              >
+                                100
+                              </Button>
+                            </DockIcon>
                           </>
                         )}
 
                         {/* Toggle Buttons */}
-                        <Button
-                          className="font-semibold"
-                          size="sm"
-                          variant={includePunctuation ? "default" : "outline"}
-                          onClick={() => {
-                            setIncludePunctuation(!includePunctuation);
-                            inputRef.current?.focus();
-                          }}
-                        >
-                          Aa!
-                        </Button>
-                        <Button
-                          className="font-semibold"
-                          size="sm"
-                          variant={includeNumbers ? "default" : "outline"}
-                          onClick={() => {
-                            setIncludeNumbers(!includeNumbers);
-                            inputRef.current?.focus();
-                          }}
-                        >
-                          123
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={showPerformance ? "default" : "outline"}
-                          onClick={() => {
-                            setShowPerformance(!showPerformance);
-                            inputRef.current?.focus();
-                          }}
-                        >
-                          <Calculator />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={
-                            showCharacterAccuracyIndicator
-                              ? "default"
-                              : "outline"
-                          }
-                          onClick={() => {
-                            setShowCharacterAccuracyIndicator(
-                              !showCharacterAccuracyIndicator
-                            );
-                            inputRef.current?.focus();
-                          }}
-                        >
-                          <MessageSquareWarningIcon />
-                        </Button>
-                      </div>
+                        <DockIcon>
+                          <Button
+                            className="font-semibold"
+                            size="sm"
+                            variant={includePunctuation ? "default" : "outline"}
+                            onClick={() => {
+                              setIncludePunctuation(!includePunctuation);
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            Aa!
+                          </Button>
+                        </DockIcon>
+                        <DockIcon>
+                          <Button
+                            className="font-semibold"
+                            size="sm"
+                            variant={includeNumbers ? "default" : "outline"}
+                            onClick={() => {
+                              setIncludeNumbers(!includeNumbers);
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            123
+                          </Button>
+                        </DockIcon>
+                        <DockIcon>
+                          <Button
+                            size="sm"
+                            variant={showPerformance ? "default" : "outline"}
+                            onClick={() => {
+                              setShowPerformance(!showPerformance);
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            <Calculator />
+                          </Button>
+                        </DockIcon>
+                        <DockIcon>
+                          <Button
+                            size="sm"
+                            variant={
+                              showCharacterAccuracyIndicator
+                                ? "default"
+                                : "outline"
+                            }
+                            onClick={() => {
+                              setShowCharacterAccuracyIndicator(
+                                !showCharacterAccuracyIndicator
+                              );
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            <MessageSquareWarningIcon />
+                          </Button>
+                        </DockIcon>
+                      </Dock>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
-            <Dock direction="middle" className="h-8 -mt-8 mb-6">
-              <DockIcon>O</DockIcon>
-              <DockIcon>P</DockIcon>
-              <DockIcon>P</DockIcon>
-              <DockIcon>A</DockIcon>
-              <DockIcon>I</DockIcon>
-            </Dock>
+              <Dock direction="middle" className="h-8 mb-6">
+                <DockIcon>O</DockIcon>
+                <DockIcon>P</DockIcon>
+                <DockIcon>P</DockIcon>
+                <DockIcon>A</DockIcon>
+                <DockIcon>I</DockIcon>
+              </Dock>
+            </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
             <div
