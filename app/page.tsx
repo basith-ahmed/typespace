@@ -232,16 +232,17 @@ export default function ImprovedTypingSpeedTester() {
     const inputValue = e.target.value;
     setUserInput(inputValue);
 
-    // Update character accuracy
+    // Update character accuracy with extra characters if any
     const currentWord = currentWords[wordIndex];
     const newCharacterAccuracy = inputValue
       .split("")
       .map((char, index) => char === currentWord[index]);
+
     setCharacterAccuracy(newCharacterAccuracy);
 
     if (inputValue.endsWith(" ")) {
       const typedWord = inputValue.trim();
-      const isCorrect = typedWord === currentWords[wordIndex];
+      const isCorrect = typedWord === currentWord;
 
       setWordStatuses((prevStatuses) => [...prevStatuses, isCorrect]);
       const newCorrectWords = isCorrect ? correctWords + 1 : correctWords;
@@ -252,12 +253,10 @@ export default function ImprovedTypingSpeedTester() {
       setUserInput("");
       setCharacterAccuracy([]);
 
-      // Append new words if nearing the end
       if (newWordIndex >= currentWords.length - 20) {
         generateWords(10);
       }
 
-      // Calculate WPM and accuracy
       const timeElapsed = (Date.now() - startTime) / 60000;
       const newWpm = Math.round(newCorrectWords / timeElapsed || 0);
       const newAccuracy =
@@ -267,7 +266,6 @@ export default function ImprovedTypingSpeedTester() {
       setWpm(newWpm);
       setAccuracy(newAccuracy);
 
-      // For word count mode, check if the test is over
       if (testMode === "words" && newWordIndex >= testWordCount) {
         endGame();
       }
@@ -534,6 +532,7 @@ export default function ImprovedTypingSpeedTester() {
                                 : isCorrect === false
                                 ? "text-red-500"
                                 : "text-muted-foreground";
+
                             return (
                               <span
                                 key={charIndex}
@@ -548,6 +547,13 @@ export default function ImprovedTypingSpeedTester() {
                             );
                           })
                         : word}
+                      {/* Display extra characters in red if any */}
+                      {index === wordIndex &&
+                        userInput.length > word.length && (
+                          <span className="text-red-500">
+                            {userInput.slice(word.length)}
+                          </span>
+                        )}
                     </div>
                   </span>
                 ))}
