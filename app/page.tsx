@@ -12,12 +12,12 @@ import {
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
-import { Dock, DockIcon } from "@/components/ui/dock";
 
 import { motion, AnimatePresence } from "framer-motion";
 
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
+import { Dock, DockIcon } from "@/components/ui/dock";
 
 export default function ImprovedTypingSpeedTester() {
   const [gameState, setGameState] = useState<"typing" | "result">("typing");
@@ -292,15 +292,15 @@ export default function ImprovedTypingSpeedTester() {
     generateWords(50);
   };
 
-  const handleDurationChange = (value: string) => {
-    const duration = parseInt(value);
+  const handleDurationChange = (value: number) => {
+    const duration = value;
     setTestDuration(duration);
     setTimeLeft(duration);
     resetGame();
   };
 
-  const handleWordCountChange = (value: string) => {
-    const wordCount = parseInt(value);
+  const handleWordCountChange = (value: number) => {
+    const wordCount = value;
     setTestWordCount(wordCount);
     resetGame();
   };
@@ -310,6 +310,38 @@ export default function ImprovedTypingSpeedTester() {
     const centerPosition = containerWidth / 2;
     const targetPosition = wordIndex * wordWidth + wordWidth / 2;
     return centerPosition - targetPosition;
+  };
+
+  // Animation
+  const variants = {
+    small: {
+      backgroundColor: "#171717",
+      width: "100%",
+      height: "16px",
+      overflow: "hidden",
+      transition: {
+        type: "spring",
+        stiffness: 700,
+        damping: 30,
+        backgroundColor: { duration: 0.3 },
+        height: { duration: 0.5, ease: "easeInOut" },
+        width: { duration: 0.5, ease: "easeInOut" },
+      },
+    },
+    dock: {
+      backgroundColor: "rgba(229, 231, 235)",
+      width: "490px",
+      height: "58px",
+      overflow: "visible",
+      transition: {
+        type: "spring",
+        stiffness: 700,
+        damping: 30,
+        backgroundColor: { duration: 0.3 },
+        height: { duration: 0.5, ease: "easeInOut" },
+        width: { duration: 0.5, ease: "easeInOut" },
+      },
+    },
   };
 
   return (
@@ -341,185 +373,62 @@ export default function ImprovedTypingSpeedTester() {
               {/* Conditionally render Dock or Progress Bar based on startTime */}
               <motion.div
                 layout
-                className="mb-4 overflow-hidden rounded-lg w-full flex justify-center"
-                animate={{
-                  backgroundColor: startTime !== 0 ? "#171717" : "#e5e7eb",
-                  width: startTime !== 0 ? "100%" : "552.02px",
-                }}
-                transition={{
-                  layout: { type: "spring", stiffness: 700, damping: 30 },
-                  backgroundColor: { duration: 0.3 },
-                }}
+                className="mb-4 rounded-full flex justify-center"
+                variants={variants}
+                initial={startTime !== 0 ? "small" : "dock"}
+                animate={startTime !== 0 ? "small" : "dock"}
               >
                 <AnimatePresence mode="wait" initial={false}>
                   {startTime !== 0 ? (
                     <motion.div
                       key="small-div"
-                      initial={{ opacity: 0, height: "16px" }}
-                      animate={{ opacity: 1, height: "16px" }}
-                      exit={{ opacity: 0, height: "72px" }}
+                      initial={{ opacity: 0, height: "58px", width: "490px" }}
+                      animate={{ opacity: 1, height: "16px", width: "100%" }}
+                      exit={{ opacity: 0, height: "58px", width: "490px" }}
                       transition={{
                         opacity: { duration: 0.2 },
-                        height: { duration: 0.5, ease: "easeInOut" },
                       }}
                       className="w-full"
                     >
-                      {testMode === "time" ? (
-                        <Progress
-                          value={(timeLeft / testDuration) * 100}
-                          className="w-full"
-                        />
-                      ) : (
-                        <Progress
-                          value={100 - (wordIndex / testWordCount) * 100}
-                          className="w-full"
-                        />
+                      {startTime !== 0 && (
+                        <>
+                          {testMode === "time" ? (
+                            <Progress
+                              value={(timeLeft / testDuration) * 100}
+                              className="w-full"
+                            />
+                          ) : (
+                            <Progress
+                              value={100 - (wordIndex / testWordCount) * 100}
+                              className="w-full"
+                            />
+                          )}
+                        </>
                       )}
                     </motion.div>
                   ) : (
                     <motion.div
                       key="dock"
-                      initial={{ opacity: 0, height: "72px" }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: "16px" }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1, height: "58px" }}
+                      exit={{ opacity: 0 }}
                       transition={{
                         opacity: { duration: 0.2 },
-                        height: { duration: 0.4, ease: "easeInOut" },
                       }}
                     >
-                      <Dock direction="middle" className="h-8 mb-6">
-                        {/* Mode Selection Buttons */}
+                      <Dock
+                        direction="middle"
+                        className="rounded-full bg-gray-200"
+                      >
                         <DockIcon>
                           <Button
-                            variant={
-                              testMode === "time" ? "default" : "outline"
-                            }
-                            onClick={() => {
-                              setTestMode("time");
-                              resetGame();
-                            }}
-                          >
-                            <Timer />
-                          </Button>
-                        </DockIcon>
-                        <DockIcon>
-                          <Button
-                            variant={
-                              testMode === "words" ? "default" : "outline"
-                            }
-                            onClick={() => {
-                              setTestMode("words");
-                              resetGame();
-                            }}
-                          >
-                            <WholeWord />
-                          </Button>
-                        </DockIcon>
-
-                        {/* Duration or Word Count Selection Buttons */}
-                        {testMode === "time" ? (
-                          <>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testDuration === 15 ? "default" : "outline"
-                                }
-                                onClick={() => handleDurationChange("15")}
-                              >
-                                15
-                              </Button>
-                            </DockIcon>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testDuration === 30 ? "default" : "outline"
-                                }
-                                onClick={() => handleDurationChange("30")}
-                              >
-                                30
-                              </Button>
-                            </DockIcon>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testDuration === 60 ? "default" : "outline"
-                                }
-                                onClick={() => handleDurationChange("60")}
-                              >
-                                60
-                              </Button>
-                            </DockIcon>
-
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testDuration === 120 ? "default" : "outline"
-                                }
-                                onClick={() => handleDurationChange("120")}
-                              >
-                                120
-                              </Button>
-                            </DockIcon>
-                          </>
-                        ) : (
-                          <>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testWordCount === 10 ? "default" : "outline"
-                                }
-                                onClick={() => handleWordCountChange("10")}
-                              >
-                                10
-                              </Button>
-                            </DockIcon>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testWordCount === 25 ? "default" : "outline"
-                                }
-                                onClick={() => handleWordCountChange("25")}
-                              >
-                                25
-                              </Button>
-                            </DockIcon>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testWordCount === 50 ? "default" : "outline"
-                                }
-                                onClick={() => handleWordCountChange("50")}
-                              >
-                                50
-                              </Button>
-                            </DockIcon>
-                            <DockIcon>
-                              <Button
-                                size="sm"
-                                variant={
-                                  testWordCount === 100 ? "default" : "outline"
-                                }
-                                onClick={() => handleWordCountChange("100")}
-                              >
-                                100
-                              </Button>
-                            </DockIcon>
-                          </>
-                        )}
-
-                        {/* Toggle Buttons */}
-                        <DockIcon>
-                          <Button
-                            className="font-semibold"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
+                              includePunctuation
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
                             size="sm"
-                            variant={includePunctuation ? "default" : "outline"}
+                            variant="ghost"
                             onClick={() => {
                               setIncludePunctuation(!includePunctuation);
                               inputRef.current?.focus();
@@ -528,11 +437,16 @@ export default function ImprovedTypingSpeedTester() {
                             Aa!
                           </Button>
                         </DockIcon>
+
                         <DockIcon>
                           <Button
-                            className="font-semibold"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
+                              includeNumbers
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
                             size="sm"
-                            variant={includeNumbers ? "default" : "outline"}
+                            variant="ghost"
                             onClick={() => {
                               setIncludeNumbers(!includeNumbers);
                               inputRef.current?.focus();
@@ -541,10 +455,110 @@ export default function ImprovedTypingSpeedTester() {
                             123
                           </Button>
                         </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                        ></div>
                         <DockIcon>
                           <Button
+                            variant="ghost"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              testMode === "time"
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            onClick={() => {
+                              setTestMode("time");
+                              resetGame();
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            <Timer />
+                          </Button>
+                        </DockIcon>
+
+                        <DockIcon>
+                          <Button
+                            variant="ghost"
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              testMode === "words"
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            onClick={() => {
+                              setTestMode("words");
+                              resetGame();
+                              inputRef.current?.focus();
+                            }}
+                          >
+                            <WholeWord />
+                          </Button>
+                        </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                        ></div>
+
+                        <DockIcon className="mx-[4.5rem]">
+                          {testMode === "time" ? (
+                            <>
+                              {[15, 30, 60, 120].map((duration) => (
+                                <div key={duration}>
+                                  <button
+                                    className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
+                                      testDuration === duration
+                                        ? "bg-gray-500"
+                                        : "bg-gray-300 hover:bg-gray-400"
+                                    } transition-colors`}
+                                    onClick={() => {
+                                      handleDurationChange(duration);
+                                      inputRef.current?.focus();
+                                    }}
+                                  >
+                                    {duration}
+                                  </button>
+                                </div>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              {[10, 25, 50, 100].map((count) => (
+                                <div key={count}>
+                                  <button
+                                    className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-transparent ${
+                                      testWordCount === count
+                                        ? "bg-gray-500"
+                                        : "bg-gray-300 hover:bg-gray-400"
+                                    } transition-colors`}
+                                    onClick={() => {
+                                      handleWordCountChange(count);
+                                      inputRef.current?.focus();
+                                    }}
+                                  >
+                                    {count}
+                                  </button>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                        </DockIcon>
+
+                        <div
+                          role="none"
+                          className="shrink-0 bg-gray-500 h-[90%] w-[2px] rounded-full"
+                        ></div>
+
+                        <DockIcon>
+                          <Button
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                              showPerformance
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
                             size="sm"
-                            variant={showPerformance ? "default" : "outline"}
+                            variant="ghost"
                             onClick={() => {
                               setShowPerformance(!showPerformance);
                               inputRef.current?.focus();
@@ -553,14 +567,16 @@ export default function ImprovedTypingSpeedTester() {
                             <Calculator />
                           </Button>
                         </DockIcon>
+
                         <DockIcon>
                           <Button
-                            size="sm"
-                            variant={
+                            className={`w-10 h-10 flex items-center justify-center rounded-full ${
                               showCharacterAccuracyIndicator
-                                ? "default"
-                                : "outline"
-                            }
+                                ? "bg-gray-500"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            } transition-colors`}
+                            size="sm"
+                            variant="ghost"
                             onClick={() => {
                               setShowCharacterAccuracyIndicator(
                                 !showCharacterAccuracyIndicator
@@ -576,13 +592,6 @@ export default function ImprovedTypingSpeedTester() {
                   )}
                 </AnimatePresence>
               </motion.div>
-              <Dock direction="middle" className="h-8 mb-6">
-                <DockIcon>O</DockIcon>
-                <DockIcon>P</DockIcon>
-                <DockIcon>P</DockIcon>
-                <DockIcon>A</DockIcon>
-                <DockIcon>I</DockIcon>
-              </Dock>
             </div>
 
             {/* Continuous Infinite Strip of Words with Centered Current Word */}
