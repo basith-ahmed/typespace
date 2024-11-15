@@ -344,7 +344,7 @@ export default function ImprovedTypingSpeedTester() {
   // Animation Variants
   const variants = {
     small: {
-      backgroundColor: theme === "light" ? "#e2e8f0" : "#171923", // Shade 4 Light / Shade 2 Dark (Darker)
+      backgroundColor: theme === "light" ? "#000000" : "#171923", // Shade 4 Light / Shade 2 Dark (Darker)
       width: "100%",
       height: "16px",
       overflow: "hidden",
@@ -426,7 +426,7 @@ export default function ImprovedTypingSpeedTester() {
                       transition={{
                         opacity: { duration: 0.2 },
                       }}
-                      className="w-full"
+                      className="w-full rounded-full"
                     >
                       {startTime !== 0 && (
                         <>
