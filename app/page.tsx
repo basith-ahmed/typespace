@@ -331,7 +331,7 @@ export default function ImprovedTypingSpeedTester() {
     },
     dock: {
       backgroundColor: "rgba(229, 231, 235)",
-      width: "490px",
+      width: "520px",
       height: "58px",
       overflow: "visible",
       transition: {
@@ -383,9 +383,9 @@ export default function ImprovedTypingSpeedTester() {
                   {startTime !== 0 ? (
                     <motion.div
                       key="small-div"
-                      initial={{ opacity: 0, height: "58px", width: "490px" }}
+                      initial={{ opacity: 0, height: "58px", width: "520px" }}
                       animate={{ opacity: 1, height: "16px", width: "100%" }}
-                      exit={{ opacity: 0, height: "58px", width: "490px" }}
+                      exit={{ opacity: 0, height: "58px", width: "520px" }}
                       transition={{
                         opacity: { duration: 0.2 },
                       }}
