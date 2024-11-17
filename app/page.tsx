@@ -361,7 +361,7 @@ export default function ImprovedTypingSpeedTester() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.1 }}
               className="flex flex-col w-full justify-center items-center"
               onAnimationComplete={() => {
                 if (inputRef.current) {
@@ -752,7 +752,7 @@ export default function ImprovedTypingSpeedTester() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.1 }}
               className="text-center mb-16 w-full max-w-2xl"
             >
               {/* <div className="text-center mb-16 w-full max-w-2xl"> */}
