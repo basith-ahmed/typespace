@@ -367,6 +367,7 @@ export default function ImprovedTypingSpeedTester() {
               }}
             >
               <div className="w-full max-w-2xl flex flex-col items-center justify-center min-h-[58px]">
+
                 {/* Conditionally render Dock or Progress Bar based on startTime */}
                 <motion.div
                   layout
@@ -450,6 +451,7 @@ export default function ImprovedTypingSpeedTester() {
                                 includeNumbers
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -479,6 +481,7 @@ export default function ImprovedTypingSpeedTester() {
                                 testMode === "time"
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               onClick={() => {
                                 setTestMode("time");
@@ -564,6 +567,7 @@ export default function ImprovedTypingSpeedTester() {
                           <div
                             role="none"
                             className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
+
                           ></div>
 
                           <DockIcon>
@@ -572,6 +576,7 @@ export default function ImprovedTypingSpeedTester() {
                                 showPerformance
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -591,6 +596,7 @@ export default function ImprovedTypingSpeedTester() {
                                 showCharacterAccuracyIndicator
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -649,6 +655,7 @@ export default function ImprovedTypingSpeedTester() {
               >
                 <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent dark:from-[#323437] z-10"></div>
                 <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 dark:to-[#323437] z-10"></div>
+
                 <div
                   className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold font-mono"
                   style={{
@@ -666,6 +673,7 @@ export default function ImprovedTypingSpeedTester() {
                           : index === wordIndex
                           ? "text-primary font-bold text-3xl"
                           : "text-muted-foreground font-semibold text-lg dark:text-gray-400"
+
                       }`}
                     >
                       <div className="inline-block">
@@ -682,12 +690,14 @@ export default function ImprovedTypingSpeedTester() {
                                   ? "text-red-500"
                                   : "text-muted-foreground dark:text-gray-400";
 
+
                               return (
                                 <span
                                   key={charIndex}
                                   className={`inline-block ${className} ${
                                     charIndex === userInput.length
                                       ? "bg-gray-200 dark:bg-[#4e5157] rounded"
+
                                       : ""
                                   }`}
                                 >
@@ -757,6 +767,7 @@ export default function ImprovedTypingSpeedTester() {
                       <div>
                         <div className="text-3xl font-bold">{accuracy}%</div>
                         <div className="text-sm ">Accuracy</div>
+
                       </div>
                     </div>
                   </div>
@@ -778,6 +789,7 @@ export default function ImprovedTypingSpeedTester() {
                 Results
               </h2>
               <div className="grid grid-cols-2 gap-4 text-gray-600 dark:text-gray-400">
+
                 <div>
                   <p className="text-4xl font-bold">{wpm}</p>
                   <p className="text-lg ">Words per Minute</p>
@@ -806,6 +818,7 @@ export default function ImprovedTypingSpeedTester() {
             Enter
           </kbd>{" "}
           to restart the game.
+
         </footer>
       </div>
 
