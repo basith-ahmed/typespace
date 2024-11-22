@@ -9,6 +9,8 @@ import {
   MessageSquareWarningIcon,
   Timer,
   WholeWord,
+  Sun,
+  Moon,
 } from "lucide-react";
 import Particles from "@/components/ui/particles";
 
@@ -46,29 +48,26 @@ export default function ImprovedTypingSpeedTester() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // toggle state variables
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
     useState(false);
 
-  // Refs to store the wpm and accuracy without causing re-renders
   const wpmRef = useRef(wpm);
   const accuracyRef = useRef(accuracy);
 
-  // Refs for shortcut detection
   const tabPressedRef = useRef(false);
   const tabTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    generateWords(50); // Initialize with a larger number of words
+  const [darkMode, setDarkMode] = useState(false);
 
-    // Measure container width for dynamic centering
+  useEffect(() => {
+    generateWords(50);
+
     if (containerRef.current) {
       setContainerWidth(containerRef.current.offsetWidth);
       window.addEventListener("resize", handleResize);
     }
 
-    // Add global keydown listener for shortcuts
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
@@ -83,7 +82,6 @@ export default function ImprovedTypingSpeedTester() {
     }
   };
 
-  // Update refs whenever wpm or accuracy changes
   useEffect(() => {
     wpmRef.current = wpm;
     accuracyRef.current = accuracy;
@@ -122,7 +120,6 @@ export default function ImprovedTypingSpeedTester() {
     }
   }, [gameState, startTime, testDuration, testMode]);
 
-  // Focus the input element on initial page load
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -135,13 +132,11 @@ export default function ImprovedTypingSpeedTester() {
     }
   }, [gameState]);
 
-  // Handler for global keydown events to detect Tab + Enter
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Tab") {
       e.preventDefault();
       tabPressedRef.current = true;
 
-      // Start a timer to reset the tabPressed flag
       if (tabTimerRef.current) {
         clearTimeout(tabTimerRef.current);
       }
@@ -169,7 +164,6 @@ export default function ImprovedTypingSpeedTester() {
           let wordsInSentence = sentence.split(" ");
 
           if (!includeNumbers) {
-            // Remove words that are numbers
             wordsInSentence = wordsInSentence.filter(
               (word) => !/\d/.test(word)
             );
@@ -197,7 +191,6 @@ export default function ImprovedTypingSpeedTester() {
     [includePunctuation, includeNumbers]
   );
 
-  // useEffect to reset state when options change
   useEffect(() => {
     if (gameState === "typing") {
       setCurrentWords([]);
@@ -234,7 +227,7 @@ export default function ImprovedTypingSpeedTester() {
     const inputValue = e.target.value;
     setUserInput(inputValue);
 
-    // Update character accuracy with extra characters if any
+    // Update character accuracy with extra characters (worngly spelled)
     const currentWord = currentWords[wordIndex];
     const newCharacterAccuracy = inputValue
       .split("")
@@ -312,10 +305,10 @@ export default function ImprovedTypingSpeedTester() {
     return centerPosition - targetPosition;
   };
 
-  // Animation
+  // Framer anim variants for Progress Bar and Dock
   const variants = {
     small: {
-      backgroundColor: "#171717",
+      backgroundColor: darkMode ? "#9ca3af" : "#737373",
       width: "100%",
       height: "16px",
       overflow: "hidden",
@@ -329,8 +322,8 @@ export default function ImprovedTypingSpeedTester() {
       },
     },
     dock: {
-      backgroundColor: "rgba(229, 231, 235)",
-      width: "520px",
+      backgroundColor: darkMode ? "#2C2E31" : "rgba(229, 231, 235, 1)",
+      width: "578px",
       height: "58px",
       overflow: "visible",
       transition: {
@@ -345,12 +338,16 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   return (
-    <div className="h-screen flex flex-col relative bg-gray-100">
+    <div
+      className={`${
+        darkMode ? "dark bg-[#323437]" : "bg-gray-100"
+      } h-screen flex flex-col relative`}
+    >
       <Particles
         className="absolute inset-0"
         quantity={100}
         ease={200}
-        color="#000000"
+        color={darkMode ? "#ffffff" : "#000000"}
         refresh
       />
       <div className="mx-auto p-4 flex flex-col items-center justify-center w-full h-full z-10">
@@ -369,7 +366,8 @@ export default function ImprovedTypingSpeedTester() {
                 }
               }}
             >
-              <div className=" w-full max-w-2xl flex flex-col items-center justify-center min-h-[58px]">
+              <div className="w-full max-w-2xl flex flex-col items-center justify-center min-h-[58px]">
+
                 {/* Conditionally render Dock or Progress Bar based on startTime */}
                 <motion.div
                   layout
@@ -385,10 +383,10 @@ export default function ImprovedTypingSpeedTester() {
                         initial={{
                           opacity: 0,
                           height: "58px",
-                          width: "520px",
+                          width: "578px",
                         }}
                         animate={{ opacity: 1, height: "16px", width: "100%" }}
-                        exit={{ opacity: 0, height: "58px", width: "520px" }}
+                        exit={{ opacity: 0, height: "58px", width: "578px" }}
                         transition={{
                           opacity: { duration: 0.2 },
                         }}
@@ -422,14 +420,14 @@ export default function ImprovedTypingSpeedTester() {
                       >
                         <Dock
                           direction="middle"
-                          className="rounded-full bg-gray-200 border border-gray-300/50 font-mono"
+                          className="rounded-full bg-gray-200 dark:bg-[#2C2E31] border border-gray-300/50 dark:border-[#323437] font-mono dark:text-[#646669] dark:hover:text-[#d1d0d5]"
                         >
                           <DockIcon>
                             <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full font-semibold ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full font-semibold ${
                                 includePunctuation
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -449,10 +447,11 @@ export default function ImprovedTypingSpeedTester() {
 
                           <DockIcon>
                             <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full font-semibold ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full font-semibold ${
                                 includeNumbers
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -472,16 +471,17 @@ export default function ImprovedTypingSpeedTester() {
 
                           <div
                             role="none"
-                            className="shrink-0 bg-gray-300/50 h-[90%] w-[2px] rounded-full"
+                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
                           ></div>
 
                           <DockIcon>
                             <Button
                               variant="ghost"
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
                                 testMode === "time"
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               onClick={() => {
                                 setTestMode("time");
@@ -497,10 +497,10 @@ export default function ImprovedTypingSpeedTester() {
                           <DockIcon>
                             <Button
                               variant="ghost"
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
                                 testMode === "words"
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
                               } transition-colors`}
                               onClick={() => {
                                 setTestMode("words");
@@ -515,7 +515,7 @@ export default function ImprovedTypingSpeedTester() {
 
                           <div
                             role="none"
-                            className="shrink-0 bg-gray-300/50 h-[90%] w-[2px] rounded-full"
+                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
                           ></div>
 
                           <DockIcon className="mx-[4.5rem]">
@@ -524,10 +524,10 @@ export default function ImprovedTypingSpeedTester() {
                                 {[15, 30, 60, 120].map((duration) => (
                                   <div key={duration}>
                                     <button
-                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 ${
+                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 dark:border-[#323437] ${
                                         testDuration === duration
-                                          ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                          : "bg-gray-300 hover:bg-gray-400/50"
+                                          ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                          : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
                                       } transition-colors`}
                                       onClick={() => {
                                         handleDurationChange(duration);
@@ -545,10 +545,10 @@ export default function ImprovedTypingSpeedTester() {
                                 {[10, 25, 50, 100].map((count) => (
                                   <div key={count}>
                                     <button
-                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 ${
+                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 dark:border-[#323437] ${
                                         testWordCount === count
-                                          ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                          : "bg-gray-300 hover:bg-gray-400/50"
+                                          ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                          : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
                                       } transition-colors`}
                                       onClick={() => {
                                         handleWordCountChange(count);
@@ -566,15 +566,17 @@ export default function ImprovedTypingSpeedTester() {
 
                           <div
                             role="none"
-                            className="shrink-0 bg-gray-300/50 h-[90%] w-[2px] rounded-full"
+                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
+
                           ></div>
 
                           <DockIcon>
                             <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
                                 showPerformance
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -590,10 +592,11 @@ export default function ImprovedTypingSpeedTester() {
 
                           <DockIcon>
                             <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 rounded-full ${
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
                                 showCharacterAccuracyIndicator
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50"
-                                  : "bg-gray-300 hover:bg-gray-400/50"
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
+
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -608,6 +611,30 @@ export default function ImprovedTypingSpeedTester() {
                               <MessageSquareWarningIcon />
                             </Button>
                           </DockIcon>
+
+                          <div
+                            role="none"
+                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
+                          ></div>
+
+                          <DockIcon>
+                            <Button
+                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
+                                darkMode
+                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
+                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#323437]"
+                              } transition-colors`}
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setDarkMode(!darkMode);
+                                inputRef.current?.focus();
+                              }}
+                              title="Toggle Dark/Light Mode"
+                            >
+                              {darkMode ? <Sun /> : <Moon />}
+                            </Button>
+                          </DockIcon>
                         </Dock>
                       </motion.div>
                     )}
@@ -620,13 +647,15 @@ export default function ImprovedTypingSpeedTester() {
                 ref={containerRef}
                 className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10 my-6"
                 style={{
-                  background:
-                    "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
+                  background: darkMode
+                    ? "linear-gradient(to bottom, rgba(50, 52, 55, 0) 0%, rgba(50, 52, 55, 1) 25%, rgba(50, 52, 55, 1) 75%, rgba(50, 52, 55, 0) 100%)"
+                    : "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
                 }}
                 onClick={() => inputRef.current?.focus()}
               >
-                <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent z-10"></div>
-                <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 z-10"></div>
+                <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent dark:from-[#323437] z-10"></div>
+                <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 dark:to-[#323437] z-10"></div>
+
                 <div
                   className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold font-mono"
                   style={{
@@ -643,7 +672,8 @@ export default function ImprovedTypingSpeedTester() {
                             : "text-red-500"
                           : index === wordIndex
                           ? "text-primary font-bold text-3xl"
-                          : "text-muted-foreground font-semibold text-lg"
+                          : "text-muted-foreground font-semibold text-lg dark:text-gray-400"
+
                       }`}
                     >
                       <div className="inline-block">
@@ -658,14 +688,16 @@ export default function ImprovedTypingSpeedTester() {
                                   ? "text-green-500"
                                   : isCorrect === false
                                   ? "text-red-500"
-                                  : "text-muted-foreground";
+                                  : "text-muted-foreground dark:text-gray-400";
+
 
                               return (
                                 <span
                                   key={charIndex}
                                   className={`inline-block ${className} ${
                                     charIndex === userInput.length
-                                      ? "bg-gray-200 rounded"
+                                      ? "bg-gray-200 dark:bg-[#4e5157] rounded"
+
                                       : ""
                                   }`}
                                 >
@@ -726,19 +758,16 @@ export default function ImprovedTypingSpeedTester() {
 
                 {/* Conditionally render WPM and Accuracy */}
                 {showPerformance && (
-                  <div className=" text-center w-full max-w-2xl h-16 justify-center items-center flex">
-                    <div className="flex flex-row gap-48 w-full items-center justify-center">
+                  <div className="text-center w-full max-w-2xl h-16 justify-center items-center flex">
+                    <div className="flex flex-row gap-48 w-full items-center justify-center text-gray-600 dark:text-gray-400">
                       <div>
-                        <div className="text-3xl font-bold text-primary">
-                          {wpm}
-                        </div>
-                        <div className="text-sm text-gray-600">WPM</div>
+                        <div className="text-3xl font-bold">{wpm}</div>
+                        <div className="text-sm ">WPM</div>
                       </div>
                       <div>
-                        <div className="text-3xl font-bold text-primary">
-                          {accuracy}%
-                        </div>
-                        <div className="text-sm text-gray-600">Accuracy</div>
+                        <div className="text-3xl font-bold">{accuracy}%</div>
+                        <div className="text-sm ">Accuracy</div>
+
                       </div>
                     </div>
                   </div>
@@ -756,15 +785,18 @@ export default function ImprovedTypingSpeedTester() {
               className="text-center mb-16 w-full max-w-2xl"
             >
               {/* <div className="text-center mb-16 w-full max-w-2xl"> */}
-              <h2 className="text-3xl font-bold mb-16">Results</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-3xl font-bold mb-16 text-gray-600 dark:text-gray-400">
+                Results
+              </h2>
+              <div className="grid grid-cols-2 gap-4 text-gray-600 dark:text-gray-400">
+
                 <div>
-                  <p className="text-4xl font-bold text-primary">{wpm}</p>
-                  <p className="text-lg text-gray-600">Words per Minute</p>
+                  <p className="text-4xl font-bold">{wpm}</p>
+                  <p className="text-lg ">Words per Minute</p>
                 </div>
                 <div>
-                  <p className="text-4xl font-bold text-primary">{accuracy}%</p>
-                  <p className="text-lg text-gray-600">Accuracy</p>
+                  <p className="text-4xl font-bold">{accuracy}%</p>
+                  <p className="text-lg ">Accuracy</p>
                 </div>
               </div>
               {/* </div> */}
@@ -776,22 +808,29 @@ export default function ImprovedTypingSpeedTester() {
         </AnimatePresence>
 
         {/* Footer with Shortcut Information */}
-        <footer className=" w-full max-w-2xl text-center text-sm text-gray-500">
-          Press <kbd className="font-mono bg-gray-200 px-1 rounded">Tab</kbd> +{" "}
-          <kbd className="font-mono bg-gray-200 px-1 rounded">Enter</kbd> to
-          restart the game.
+        <footer className="w-full max-w-2xl text-center text-sm text-gray-500 dark:text-gray-400">
+          Press{" "}
+          <kbd className="font-mono bg-gray-200 dark:bg-[#2c2e31] px-1 rounded">
+            Tab
+          </kbd>{" "}
+          +{" "}
+          <kbd className="font-mono bg-gray-200 dark:bg-[#2c2e31] px-1 rounded">
+            Enter
+          </kbd>{" "}
+          to restart the game.
+
         </footer>
       </div>
 
       {startTime === 0 && (
         <div className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10">
           <a
-            className="group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+            className="group rounded-full border border-black/5 dark:border-white/5 bg-neutral-100 dark:bg-[#2c2e31] text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:hover:bg-neu[#2C2E31]"
             href="https://github.com/basith-ahmed/type-racer"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400 shadow-sm rounded-full">
+            <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 dark:hover:text-neutral-400 hover:duration-300 shadow-sm rounded-full">
               {/* <div className="hover:underline text-sm flex justify-center items-center"> */}
               <span>View on GitHub</span>
               {/* <Link2 className="w-4 h-4 ml-1" /> */}

@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "TypeSpace",
-  description: "Test your typing skills with TypeSpace",
+  description: "Challenge your typing speed and accuracy with TypeSpace",
 };
 
 export default function RootLayout({
