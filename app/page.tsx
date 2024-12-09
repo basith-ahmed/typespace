@@ -51,6 +51,7 @@ export default function ImprovedTypingSpeedTester() {
   const [showPerformance, setShowPerformance] = useState(true);
   const [showCharacterAccuracyIndicator, setShowCharacterAccuracyIndicator] =
     useState(false);
+  const [capsLockOn, setCapsLockOn] = useState(false);
 
   const wpmRef = useRef(wpm);
   const accuracyRef = useRef(accuracy);
@@ -69,10 +70,12 @@ export default function ImprovedTypingSpeedTester() {
     }
 
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
@@ -80,6 +83,32 @@ export default function ImprovedTypingSpeedTester() {
     if (containerRef.current) {
       setContainerWidth(containerRef.current.offsetWidth);
     }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      tabPressedRef.current = true;
+
+      if (tabTimerRef.current) {
+        clearTimeout(tabTimerRef.current);
+      }
+      tabTimerRef.current = setTimeout(() => {
+        tabPressedRef.current = false;
+      }, 500);
+    } else if (e.key === "Enter" && tabPressedRef.current) {
+      e.preventDefault();
+      resetGame();
+      tabPressedRef.current = false;
+      if (tabTimerRef.current) {
+        clearTimeout(tabTimerRef.current);
+      }
+    }
+    setCapsLockOn(e.getModifierState("CapsLock"));
+  };
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    setCapsLockOn(e.getModifierState("CapsLock"));
   };
 
   useEffect(() => {
@@ -99,7 +128,6 @@ export default function ImprovedTypingSpeedTester() {
             return 0;
           }
 
-          // Update performance data every 5 seconds
           const timeElapsed = testDuration - newTimeLeft;
           if (timeElapsed > 0 && timeElapsed % 5 === 0) {
             setPerformanceData((prev) => [
@@ -131,27 +159,6 @@ export default function ImprovedTypingSpeedTester() {
       inputRef.current.focus();
     }
   }, [gameState]);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      tabPressedRef.current = true;
-
-      if (tabTimerRef.current) {
-        clearTimeout(tabTimerRef.current);
-      }
-      tabTimerRef.current = setTimeout(() => {
-        tabPressedRef.current = false;
-      }, 500); // 500ms window for Enter to be pressed after Tab
-    } else if (e.key === "Enter" && tabPressedRef.current) {
-      e.preventDefault();
-      resetGame();
-      tabPressedRef.current = false;
-      if (tabTimerRef.current) {
-        clearTimeout(tabTimerRef.current);
-      }
-    }
-  };
 
   const generateWords = useCallback(
     (count = 10) => {
@@ -227,7 +234,6 @@ export default function ImprovedTypingSpeedTester() {
     const inputValue = e.target.value;
     setUserInput(inputValue);
 
-    // Update character accuracy with extra characters (worngly spelled)
     const currentWord = currentWords[wordIndex];
     const newCharacterAccuracy = inputValue
       .split("")
@@ -299,13 +305,12 @@ export default function ImprovedTypingSpeedTester() {
   };
 
   const calculateTranslateX = () => {
-    const wordWidth = 120;
+    const wordWidth = 130;
     const centerPosition = containerWidth / 2;
     const targetPosition = wordIndex * wordWidth + wordWidth / 2;
     return centerPosition - targetPosition;
   };
 
-  // Framer anim variants for Progress Bar and Dock
   const variants = {
     small: {
       backgroundColor: darkMode ? "#9ca3af" : "#737373",
@@ -367,8 +372,12 @@ export default function ImprovedTypingSpeedTester() {
               }}
             >
               <div className="w-full max-w-2xl flex flex-col items-center justify-center min-h-[58px]">
-
-                {/* Conditionally render Dock or Progress Bar based on startTime */}
+                {capsLockOn && (
+                  <div className="mt-2 flex items-center text-gray-900 dark:text-gray-400 dark:bg-[#2C2E31] p-2 px-4 mb-4 bg-gray-400 rounded-md">
+                    <MessageSquareWarningIcon className="w-4 h-4 mr-1" />
+                    Caps Lock is on
+                  </div>
+                )}
                 <motion.div
                   layout
                   className="rounded-full flex justify-center"
@@ -451,7 +460,6 @@ export default function ImprovedTypingSpeedTester() {
                                 includeNumbers
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -481,7 +489,6 @@ export default function ImprovedTypingSpeedTester() {
                                 testMode === "time"
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-
                               } transition-colors`}
                               onClick={() => {
                                 setTestMode("time");
@@ -567,7 +574,6 @@ export default function ImprovedTypingSpeedTester() {
                           <div
                             role="none"
                             className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
-
                           ></div>
 
                           <DockIcon>
@@ -576,7 +582,6 @@ export default function ImprovedTypingSpeedTester() {
                                 showPerformance
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -596,7 +601,6 @@ export default function ImprovedTypingSpeedTester() {
                                 showCharacterAccuracyIndicator
                                   ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
                                   : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-
                               } transition-colors`}
                               size="sm"
                               variant="ghost"
@@ -642,7 +646,6 @@ export default function ImprovedTypingSpeedTester() {
                 </motion.div>
               </div>
 
-              {/* Continuous Infinite Strip of Words with Centered Current Word */}
               <div
                 ref={containerRef}
                 className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10 my-6"
@@ -656,24 +659,22 @@ export default function ImprovedTypingSpeedTester() {
                 <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent dark:from-[#323437] z-10"></div>
                 <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 dark:to-[#323437] z-10"></div>
 
-                <div
-                  className="absolute whitespace-nowrap flex items-center h-full transition-transform duration-100 text-lg font-semibold font-mono"
-                  style={{
-                    transform: `translateX(${calculateTranslateX()}px)`,
-                  }}
+                <motion.div
+                  className="absolute whitespace-nowrap flex items-center h-full text-lg font-semibold font-mono"
+                  animate={{ x: calculateTranslateX() }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   {currentWords.map((word, index) => (
                     <span
                       key={index}
-                      className={`inline-block w-[120px] text-center ${
+                      className={`inline-block w-[130px] text-center ${
                         index < wordIndex
                           ? wordStatuses[index]
                             ? "text-green-500"
                             : "text-red-500"
                           : index === wordIndex
-                          ? "text-primary font-bold text-3xl"
-                          : "text-muted-foreground font-semibold text-lg dark:text-gray-400"
-
+                          ? "text-primary font-bold text-4xl relative"
+                          : "text-muted-foreground font-semibold text-2xl dark:text-gray-400"
                       }`}
                     >
                       <div className="inline-block">
@@ -690,14 +691,12 @@ export default function ImprovedTypingSpeedTester() {
                                   ? "text-red-500"
                                   : "text-muted-foreground dark:text-gray-400";
 
-
                               return (
                                 <span
                                   key={charIndex}
                                   className={`inline-block ${className} ${
                                     charIndex === userInput.length
                                       ? "bg-gray-200 dark:bg-[#4e5157] rounded"
-
                                       : ""
                                   }`}
                                 >
@@ -706,7 +705,6 @@ export default function ImprovedTypingSpeedTester() {
                               );
                             })
                           : word}
-                        {/* Display extra characters in red if any */}
                         {index === wordIndex &&
                           userInput.length > word.length && (
                             <span className="text-red-500">
@@ -716,11 +714,10 @@ export default function ImprovedTypingSpeedTester() {
                       </div>
                     </span>
                   ))}
-                </div>
+                </motion.div>
               </div>
 
               <div className="w-full max-w-2xl flex flex-col justify-center items-center mb-12">
-                {/* Invisible Input Field */}
                 <input
                   ref={inputRef}
                   type="text"
@@ -740,7 +737,6 @@ export default function ImprovedTypingSpeedTester() {
                   aria-label="Type the words shown above"
                 />
 
-                {/* Character Accuracy Indicators */}
                 {showCharacterAccuracyIndicator && (
                   <div className="mb-4 text-center min-h-8">
                     <>
@@ -756,10 +752,9 @@ export default function ImprovedTypingSpeedTester() {
                   </div>
                 )}
 
-                {/* Conditionally render WPM and Accuracy */}
                 {showPerformance && (
                   <div className="text-center w-full max-w-2xl h-16 justify-center items-center flex">
-                    <div className="flex flex-row gap-48 w-full items-center justify-center text-gray-600 dark:text-gray-400">
+                    <div className="flex flex-row gap-48 w-full items-center justify-center text-gray-500 dark:text-gray-400">
                       <div>
                         <div className="text-3xl font-bold">{wpm}</div>
                         <div className="text-sm ">WPM</div>
@@ -767,7 +762,6 @@ export default function ImprovedTypingSpeedTester() {
                       <div>
                         <div className="text-3xl font-bold">{accuracy}%</div>
                         <div className="text-sm ">Accuracy</div>
-
                       </div>
                     </div>
                   </div>
@@ -784,12 +778,10 @@ export default function ImprovedTypingSpeedTester() {
               transition={{ duration: 0.1 }}
               className="text-center mb-16 w-full max-w-2xl"
             >
-              {/* <div className="text-center mb-16 w-full max-w-2xl"> */}
               <h2 className="text-3xl font-bold mb-16 text-gray-600 dark:text-gray-400">
                 Results
               </h2>
               <div className="grid grid-cols-2 gap-4 text-gray-600 dark:text-gray-400">
-
                 <div>
                   <p className="text-4xl font-bold">{wpm}</p>
                   <p className="text-lg ">Words per Minute</p>
@@ -799,15 +791,10 @@ export default function ImprovedTypingSpeedTester() {
                   <p className="text-lg ">Accuracy</p>
                 </div>
               </div>
-              {/* </div> */}
-              {/* <Button onClick={resetGame} className="w-full max-w-2xl">
-                Try Again
-              </Button> */}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Footer with Shortcut Information */}
         <footer className="w-full max-w-2xl text-center text-sm text-gray-500 dark:text-gray-400">
           Press{" "}
           <kbd className="font-mono bg-gray-200 dark:bg-[#2c2e31] px-1 rounded">
@@ -818,7 +805,6 @@ export default function ImprovedTypingSpeedTester() {
             Enter
           </kbd>{" "}
           to restart the game.
-
         </footer>
       </div>
 
@@ -831,10 +817,7 @@ export default function ImprovedTypingSpeedTester() {
             rel="noopener noreferrer"
           >
             <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 dark:hover:text-neutral-400 hover:duration-300 shadow-sm rounded-full">
-              {/* <div className="hover:underline text-sm flex justify-center items-center"> */}
               <span>View on GitHub</span>
-              {/* <Link2 className="w-4 h-4 ml-1" /> */}
-              {/* </div> */}
             </AnimatedShinyText>
           </a>
         </div>
