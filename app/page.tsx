@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { MessageSquareWarningIcon } from "lucide-react";
 import Particles from "@/components/ui/particles";
 import { AnimatePresence, motion } from "framer-motion";
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
-import AnimatedShinyText from "@/components/ui/animated-shiny-text";
 
 import SettingsDock from "@/components/SettingsDock";
 import WordDisplay from "@/components/WordDisplay";

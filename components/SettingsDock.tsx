@@ -4,13 +4,15 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Dock, DockIcon } from "@/components/ui/dock";
 import {
-  Calculator,
-  MessageSquareWarningIcon,
-  Timer,
   WholeWord,
   Sun,
   Moon,
+  LetterText,
+  Locate,
+  Hourglass,
 } from "lucide-react";
+import { GoNumber } from "react-icons/go";
+import { SlSpeedometer } from "react-icons/sl";
 
 interface SettingsDockProps {
   includePunctuation: boolean;
@@ -83,7 +85,7 @@ const SettingsDock: React.FC<SettingsDockProps> = ({
             includePunctuation ? "Exclude punctuation" : "Include punctuation"
           }
         >
-          Aa!
+          <LetterText />
         </Button>
       </DockIcon>
 
@@ -102,7 +104,9 @@ const SettingsDock: React.FC<SettingsDockProps> = ({
           }}
           title={includeNumbers ? "Exclude numbers" : "Include numbers"}
         >
-          123
+          <GoNumber className="ml-[1px]" style={{
+            strokeWidth: "0.3px",
+          }}/>
         </Button>
       </DockIcon>
 
@@ -126,7 +130,7 @@ const SettingsDock: React.FC<SettingsDockProps> = ({
           }}
           title="Time mode"
         >
-          <Timer />
+          <Hourglass />
         </Button>
       </DockIcon>
 
@@ -220,7 +224,9 @@ const SettingsDock: React.FC<SettingsDockProps> = ({
           }}
           title="Toggle performance display"
         >
-          <Calculator />
+          <SlSpeedometer className="-mt-[1px]" style={{
+            strokeWidth: "10px",
+          }}/>
         </Button>
       </DockIcon>
 
@@ -239,7 +245,7 @@ const SettingsDock: React.FC<SettingsDockProps> = ({
           }}
           title="Toggle character accuracy indicator"
         >
-          <MessageSquareWarningIcon />
+          <Locate />
         </Button>
       </DockIcon>
 

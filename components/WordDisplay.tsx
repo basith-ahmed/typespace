@@ -2,7 +2,6 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { words } from "@/constants/words";
 
 interface WordDisplayProps {
   currentWords: string[];
