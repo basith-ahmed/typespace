@@ -3,23 +3,19 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Calculator,
-  Link2,
-  MessageSquareWarningIcon,
-  Timer,
-  WholeWord,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { MessageSquareWarningIcon } from "lucide-react";
 import Particles from "@/components/ui/particles";
-
-import { motion, AnimatePresence } from "framer-motion";
-
+import { AnimatePresence, motion } from "framer-motion";
 import { words } from "@/constants/words";
 import { sampleSentences } from "@/constants/sampleSentences";
-import { Dock, DockIcon } from "@/components/ui/dock";
 import AnimatedShinyText from "@/components/ui/animated-shiny-text";
+
+import SettingsDock from "@/components/SettingsDock";
+import WordDisplay from "@/components/WordDisplay";
+import PerformanceDisplay from "@/components/PerformanceDisplay";
+import ResultScreen from "@/components/ResultScreen";
+import CapsLockWarning from "@/components/CapsLockWarning";
+import GitHubLink from "@/components/GitHubLink";
 
 export default function ImprovedTypingSpeedTester() {
   const [gameState, setGameState] = useState<"typing" | "result">("typing");
@@ -304,13 +300,6 @@ export default function ImprovedTypingSpeedTester() {
     resetGame();
   };
 
-  const calculateTranslateX = () => {
-    const wordWidth = 130;
-    const centerPosition = containerWidth / 2;
-    const targetPosition = wordIndex * wordWidth + wordWidth / 2;
-    return centerPosition - targetPosition;
-  };
-
   const variants = {
     small: {
       backgroundColor: darkMode ? "#9ca3af" : "#737373",
@@ -372,12 +361,7 @@ export default function ImprovedTypingSpeedTester() {
               }}
             >
               <div className="w-full max-w-2xl flex flex-col items-center justify-center min-h-[58px]">
-                {capsLockOn && (
-                  <div className="mt-2 flex items-center text-gray-900 dark:text-gray-400 dark:bg-[#2C2E31] p-2 px-4 mb-4 bg-gray-400 rounded-md">
-                    <MessageSquareWarningIcon className="w-4 h-4 mr-1" />
-                    Caps Lock is on
-                  </div>
-                )}
+                {capsLockOn && <CapsLockWarning darkMode={darkMode} />}
                 <motion.div
                   layout
                   className="rounded-full flex justify-center"
@@ -427,295 +411,47 @@ export default function ImprovedTypingSpeedTester() {
                           opacity: { duration: 0.2 },
                         }}
                       >
-                        <Dock
-                          direction="middle"
-                          className="rounded-full bg-gray-200 dark:bg-[#2C2E31] border border-gray-300/50 dark:border-[#323437] font-mono dark:text-[#646669] dark:hover:text-[#d1d0d5]"
-                        >
-                          <DockIcon>
-                            <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full font-semibold ${
-                                includePunctuation
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setIncludePunctuation(!includePunctuation);
-                                inputRef.current?.focus();
-                              }}
-                              title={
-                                includePunctuation
-                                  ? "Exclude punctuation"
-                                  : "Include punctuation"
-                              }
-                            >
-                              Aa!
-                            </Button>
-                          </DockIcon>
-
-                          <DockIcon>
-                            <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full font-semibold ${
-                                includeNumbers
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setIncludeNumbers(!includeNumbers);
-                                inputRef.current?.focus();
-                              }}
-                              title={
-                                includeNumbers
-                                  ? "Exclude numbers"
-                                  : "Include numbers"
-                              }
-                            >
-                              123
-                            </Button>
-                          </DockIcon>
-
-                          <div
-                            role="none"
-                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
-                          ></div>
-
-                          <DockIcon>
-                            <Button
-                              variant="ghost"
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
-                                testMode === "time"
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              onClick={() => {
-                                setTestMode("time");
-                                resetGame();
-                                inputRef.current?.focus();
-                              }}
-                              title="Time mode"
-                            >
-                              <Timer />
-                            </Button>
-                          </DockIcon>
-
-                          <DockIcon>
-                            <Button
-                              variant="ghost"
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
-                                testMode === "words"
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              onClick={() => {
-                                setTestMode("words");
-                                resetGame();
-                                inputRef.current?.focus();
-                              }}
-                              title="Words mode"
-                            >
-                              <WholeWord />
-                            </Button>
-                          </DockIcon>
-
-                          <div
-                            role="none"
-                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
-                          ></div>
-
-                          <DockIcon className="mx-[4.5rem]">
-                            {testMode === "time" ? (
-                              <>
-                                {[15, 30, 60, 120].map((duration) => (
-                                  <div key={duration}>
-                                    <button
-                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 dark:border-[#323437] ${
-                                        testDuration === duration
-                                          ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                          : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                                      } transition-colors`}
-                                      onClick={() => {
-                                        handleDurationChange(duration);
-                                        inputRef.current?.focus();
-                                      }}
-                                      title={`Set test duration to ${duration} seconds`}
-                                    >
-                                      {duration}
-                                    </button>
-                                  </div>
-                                ))}
-                              </>
-                            ) : (
-                              <>
-                                {[10, 25, 50, 100].map((count) => (
-                                  <div key={count}>
-                                    <button
-                                      className={`w-10 h-10 mx-1 flex items-center justify-center rounded-full border border-gray-200/50 dark:border-[#323437] ${
-                                        testWordCount === count
-                                          ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                          : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                                      } transition-colors`}
-                                      onClick={() => {
-                                        handleWordCountChange(count);
-                                        inputRef.current?.focus();
-                                      }}
-                                      title={`Set test word count to ${count}`}
-                                    >
-                                      {count}
-                                    </button>
-                                  </div>
-                                ))}
-                              </>
-                            )}
-                          </DockIcon>
-
-                          <div
-                            role="none"
-                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
-                          ></div>
-
-                          <DockIcon>
-                            <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
-                                showPerformance
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setShowPerformance(!showPerformance);
-                                inputRef.current?.focus();
-                              }}
-                              title="Toggle performance display"
-                            >
-                              <Calculator />
-                            </Button>
-                          </DockIcon>
-
-                          <DockIcon>
-                            <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
-                                showCharacterAccuracyIndicator
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#4e5157]"
-                              } transition-colors`}
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setShowCharacterAccuracyIndicator(
-                                  !showCharacterAccuracyIndicator
-                                );
-                                inputRef.current?.focus();
-                              }}
-                              title="Toggle character accuracy indicator"
-                            >
-                              <MessageSquareWarningIcon />
-                            </Button>
-                          </DockIcon>
-
-                          <div
-                            role="none"
-                            className="shrink-0 bg-gray-300/50 dark:bg-[#323437] h-[90%] w-[2px] rounded-full"
-                          ></div>
-
-                          <DockIcon>
-                            <Button
-                              className={`w-10 h-10 flex items-center justify-center border border-gray-200/50 dark:border-[#323437] rounded-full ${
-                                darkMode
-                                  ? "bg-gray-400/80 hover:bg-gray-500/50 dark:bg-[#4e5157] dark:hover:bg-[#70747d]"
-                                  : "bg-gray-300 hover:bg-gray-400/50 dark:bg-[#323437] dark:hover:bg-[#323437]"
-                              } transition-colors`}
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setDarkMode(!darkMode);
-                                inputRef.current?.focus();
-                              }}
-                              title="Toggle Dark/Light Mode"
-                            >
-                              {darkMode ? <Sun /> : <Moon />}
-                            </Button>
-                          </DockIcon>
-                        </Dock>
+                        <SettingsDock
+                          includePunctuation={includePunctuation}
+                          setIncludePunctuation={setIncludePunctuation}
+                          includeNumbers={includeNumbers}
+                          setIncludeNumbers={setIncludeNumbers}
+                          testMode={testMode}
+                          setTestMode={setTestMode}
+                          testDuration={testDuration}
+                          setTestDuration={handleDurationChange}
+                          testWordCount={testWordCount}
+                          setTestWordCount={handleWordCountChange}
+                          showPerformance={showPerformance}
+                          setShowPerformance={setShowPerformance}
+                          showCharacterAccuracyIndicator={
+                            showCharacterAccuracyIndicator
+                          }
+                          setShowCharacterAccuracyIndicator={
+                            setShowCharacterAccuracyIndicator
+                          }
+                          darkMode={darkMode}
+                          setDarkMode={setDarkMode}
+                          inputRef={inputRef}
+                          resetGame={resetGame}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </motion.div>
               </div>
 
-              <div
-                ref={containerRef}
-                className="relative h-24 overflow-hidden rounded-lg w-full max-w-2xl z-10 my-6"
-                style={{
-                  background: darkMode
-                    ? "linear-gradient(to bottom, rgba(50, 52, 55, 0) 0%, rgba(50, 52, 55, 1) 25%, rgba(50, 52, 55, 1) 75%, rgba(50, 52, 55, 0) 100%)"
-                    : "linear-gradient(to bottom, rgba(243, 244, 246, 0) 0%, rgba(243, 244, 246, 1) 25%, rgba(243, 244, 246, 1) 75%, rgba(243, 244, 246, 0) 100%)",
-                }}
-                onClick={() => inputRef.current?.focus()}
-              >
-                <div className="absolute left-0 h-full w-[100px] bg-gradient-to-r from-gray-100 to-transparent dark:from-[#323437] z-10"></div>
-                <div className="absolute right-0 h-full w-[100px] bg-gradient-to-r from-transparent to-gray-100 dark:to-[#323437] z-10"></div>
-
-                <motion.div
-                  className="absolute whitespace-nowrap flex items-center h-full text-lg font-semibold font-mono"
-                  animate={{ x: calculateTranslateX() }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
-                  {currentWords.map((word, index) => (
-                    <span
-                      key={index}
-                      className={`inline-block w-[130px] text-center ${
-                        index < wordIndex
-                          ? wordStatuses[index]
-                            ? "text-green-500"
-                            : "text-red-500"
-                          : index === wordIndex
-                          ? "text-primary font-bold text-4xl relative"
-                          : "text-muted-foreground font-semibold text-2xl dark:text-gray-400"
-                      }`}
-                    >
-                      <div className="inline-block">
-                        {index === wordIndex
-                          ? word.split("").map((char, charIndex) => {
-                              const isCorrect =
-                                charIndex < characterAccuracy.length
-                                  ? characterAccuracy[charIndex]
-                                  : null;
-                              const className =
-                                isCorrect === true
-                                  ? "text-green-500"
-                                  : isCorrect === false
-                                  ? "text-red-500"
-                                  : "text-muted-foreground dark:text-gray-400";
-
-                              return (
-                                <span
-                                  key={charIndex}
-                                  className={`inline-block ${className} ${
-                                    charIndex === userInput.length
-                                      ? "bg-gray-200 dark:bg-[#4e5157] rounded"
-                                      : ""
-                                  }`}
-                                >
-                                  {char}
-                                </span>
-                              );
-                            })
-                          : word}
-                        {index === wordIndex &&
-                          userInput.length > word.length && (
-                            <span className="text-red-500">
-                              {userInput.slice(word.length)}
-                            </span>
-                          )}
-                      </div>
-                    </span>
-                  ))}
-                </motion.div>
-              </div>
+              <WordDisplay
+                currentWords={currentWords}
+                wordIndex={wordIndex}
+                characterAccuracy={characterAccuracy}
+                userInput={userInput}
+                wordStatuses={wordStatuses}
+                containerWidth={containerWidth}
+                darkMode={darkMode}
+                containerRef={containerRef}
+                inputRef={inputRef}
+              />
 
               <div className="w-full max-w-2xl flex flex-col justify-center items-center mb-12">
                 <input
@@ -753,45 +489,13 @@ export default function ImprovedTypingSpeedTester() {
                 )}
 
                 {showPerformance && (
-                  <div className="text-center w-full max-w-2xl h-16 justify-center items-center flex">
-                    <div className="flex flex-row gap-48 w-full items-center justify-center text-gray-500 dark:text-gray-400">
-                      <div>
-                        <div className="text-3xl font-bold">{wpm}</div>
-                        <div className="text-sm ">WPM</div>
-                      </div>
-                      <div>
-                        <div className="text-3xl font-bold">{accuracy}%</div>
-                        <div className="text-sm ">Accuracy</div>
-                      </div>
-                    </div>
-                  </div>
+                  <PerformanceDisplay wpm={wpm} accuracy={accuracy} darkMode={darkMode} />
                 )}
               </div>
             </motion.div>
           )}
           {gameState === "result" && (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }}
-              className="text-center mb-16 w-full max-w-2xl"
-            >
-              <h2 className="text-3xl font-bold mb-16 text-gray-600 dark:text-gray-400">
-                Results
-              </h2>
-              <div className="grid grid-cols-2 gap-4 text-gray-600 dark:text-gray-400">
-                <div>
-                  <p className="text-4xl font-bold">{wpm}</p>
-                  <p className="text-lg ">Words per Minute</p>
-                </div>
-                <div>
-                  <p className="text-4xl font-bold">{accuracy}%</p>
-                  <p className="text-lg ">Accuracy</p>
-                </div>
-              </div>
-            </motion.div>
+            <ResultScreen wpm={wpm} accuracy={accuracy} darkMode={darkMode} />
           )}
         </AnimatePresence>
 
@@ -808,20 +512,7 @@ export default function ImprovedTypingSpeedTester() {
         </footer>
       </div>
 
-      {startTime === 0 && (
-        <div className="absolute bottom-0 w-full flex justify-center pb-8 cursor-pointer z-10">
-          <a
-            className="group rounded-full border border-black/5 dark:border-white/5 bg-neutral-100 dark:bg-[#2c2e31] text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:hover:bg-neu[#2C2E31]"
-            href="https://github.com/basith-ahmed/type-racer"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 dark:hover:text-neutral-400 hover:duration-300 shadow-sm rounded-full">
-              <span>View on GitHub</span>
-            </AnimatedShinyText>
-          </a>
-        </div>
-      )}
+      {startTime === 0 && <GitHubLink />}
     </div>
   );
 }
