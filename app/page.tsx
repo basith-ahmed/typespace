@@ -335,8 +335,8 @@ export default function ImprovedTypingSpeedTester() {
       } h-screen flex flex-col relative`}
     >
       {startTime === 0 && (
-        <div className="absolute top-0 w-full">
-          <h2 className="text-lg font-semibold">Typespace.</h2>
+        <div className="absolute top-0 w-full flex justify-between p-4">
+          <h2 className="text-lg font-semibold font-mono">Typespace.</h2>
           <GitHubLink />
         </div>
       )}
