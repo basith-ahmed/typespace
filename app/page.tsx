@@ -334,6 +334,12 @@ export default function ImprovedTypingSpeedTester() {
         darkMode ? "dark bg-[#323437]" : "bg-gray-100"
       } h-screen flex flex-col relative`}
     >
+      {startTime === 0 && (
+        <div className="absolute top-0 w-full">
+          <h2 className="text-lg font-semibold">Typespace.</h2>
+          <GitHubLink />
+        </div>
+      )}
       <Particles
         className="absolute inset-0"
         quantity={100}
@@ -486,7 +492,11 @@ export default function ImprovedTypingSpeedTester() {
                 )}
 
                 {showPerformance && (
-                  <PerformanceDisplay wpm={wpm} accuracy={accuracy} darkMode={darkMode} />
+                  <PerformanceDisplay
+                    wpm={wpm}
+                    accuracy={accuracy}
+                    darkMode={darkMode}
+                  />
                 )}
               </div>
             </motion.div>
@@ -508,8 +518,6 @@ export default function ImprovedTypingSpeedTester() {
           to restart the game.
         </footer>
       </div>
-
-      {startTime === 0 && <GitHubLink />}
     </div>
   );
 }
